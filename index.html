@@ -453,55 +453,6 @@
         document.getElementById("remainingXP").textContent =
             "-";
 
-// 1. Banco de dados dos materiais de Woodcutting
-const woodcuttingMaterials = [
-    { name: "Birch", minLevel: 1, xpPerAction: 10 },
-    { name: "Maple", minLevel: 10, xpPerAction: 35 },
-    { name: "Oak", minLevel: 20, xpPerAction: 120 },
-    { name: "Cypress", minLevel: 30, xpPerAction: 325 },
-    { name: "Pine", minLevel: 40, xpPerAction: 575 },
-    { name: "Fir", minLevel: 50, xpPerAction: 875 }
-    // Adicione mais materiais seguindo o mesmo padrão aqui
-];
-
-function updateMaterialCalculations(remainingXp, targetLevel) {
-    const listContainer = document.getElementById("material-list");
-    const sectionContainer = document.getElementById("material-results");
-    
-    // Limpa resultados anteriores
-    listContainer.innerHTML = "";
-    
-    if (remainingXp <= 0) {
-        sectionContainer.style.display = "none";
-        return;
-    }
-
-    // 2. Filtra os materiais que o jogador já pode usar baseado no nível alvo
-    // (Ou ajuste para verificar o nível atual do jogador, dependendo da sua preferência)
-    woodcuttingMaterials.forEach(material => {
-        if (targetLevel >= material.minLevel) {
-            // Calcula a quantidade arredondando para cima
-            const amountNeeded = Math.ceil(remainingXp / material.xpPerAction);
-            
-            // Cria o item da lista visual
-            const li = document.createElement("li");
-            li.style.padding = "8px 0";
-            li.style.borderBottom = "1px dashed #2c2c2c";
-            li.innerHTML = `🪓 <strong>${material.name}</strong> (Lvl ${material.minLevel}): <span style="color: #4caf50;">${amountNeeded.toLocaleString()}</span> unidades`;
-            
-            listContainer.appendChild(li);
-        }
-    });
-
-    // Mostra a aba apenas se houver resultados válidos
-    if (listContainer.children.length > 0) {
-        sectionContainer.style.display = "block";
-    } else {
-        sectionContainer.style.display = "none";
-    }
-}
-
-
         return;
     }
 
@@ -515,9 +466,6 @@ function updateMaterialCalculations(remainingXp, targetLevel) {
 
         document.getElementById("remainingXP").textContent =
             "-";
-
- 
-
 
         return;
     }
@@ -573,17 +521,7 @@ function updateMaterialCalculations(remainingXp, targetLevel) {
 
     result.classList.add("show");
 
-   
-
-
 }
-
-<div>
-<!-- Seção dinâmica para exibir a quantidade de materiais necessários -->
-<div id="material-results" style="margin-top: 20px; color: white; display: none; text-align: left; padding: 15px; background: #1a1a1a; border-radius: 8px;">
-    <h3 style="margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">Materiais Necessários:</h3>
-    <ul id="material-list" style="list-style: none; padding: 0; margin: 0;"></ul>
-</div>
 
 
     /*
@@ -610,8 +548,6 @@ function updateMaterialCalculations(remainingXp, targetLevel) {
     fillLevels();
 
 </script>
-
-
 
 </body>
 </html>
