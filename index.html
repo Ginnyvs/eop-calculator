@@ -121,6 +121,16 @@
         }
 
         /*
+            ACTIVE BOOST STATE
+            Applied to whichever boost button is currently on,
+            so the player can see which one (if any) is active.
+        */
+        .bonus-button.active-boost {
+            background: #e0a020;
+            color: #111;
+        }
+
+        /*
             MATERIALS SECTION
             Hidden by default. Shown (via the "show" class)
             only when the current skill has a materials list.
@@ -237,18 +247,27 @@
                 Current Level
             </label>
 
-            <select id="currentLevel">
-                <option value="">Select level</option>
-            </select>
+            <input
+                type="number"
+                id="currentLevel"
+                min="1"
+                max="140"
+                placeholder="Enter your current level"
+                oninput="fillMaterials(currentSkillName)"
+            >
 
 
             <label for="targetLevel">
                 Target Level
             </label>
 
-            <select id="targetLevel">
-                <option value="">Select level</option>
-            </select>
+            <input
+                type="number"
+                id="targetLevel"
+                min="1"
+                max="140"
+                placeholder="Enter your target level"
+            >
 
 
             <label for="currentXP">
@@ -264,10 +283,10 @@
             >
 
             <div class="bonus-buttons">
-                <button type="button" class="bonus-button" onclick="addXPBonus(0.25)">
+                <button type="button" class="bonus-button" onclick="setXPBoost(0.25, this)">
                     ✨ +25% XP
                 </button>
-                <button type="button" class="bonus-button" onclick="addXPBonus(0.5)">
+                <button type="button" class="bonus-button" onclick="setXPBoost(0.5, this)">
                     ⭐ +50% XP
                 </button>
             </div>
@@ -356,6 +375,9 @@
         Each skill can have its own list of materials.
         Fill in the real in-game values here. Skills that
         aren't listed here simply won't show the section.
+
+        minLevel is the current level required to be able to
+        pick this material at all (see fillMaterials below).
     */
 
     const materials = {
@@ -374,42 +396,59 @@
 
 
     /*
-        CREATE LEVEL OPTIONS
-        Levels 1 through 140
+        CURRENT SKILL NAME
+
+        Tracks which skill is open right now, so the
+        Current Level field can re-filter the materials
+        list on every keystroke without needing to know
+        the skill name itself.
     */
 
-    function fillLevels() {
-
-        const currentLevel =
-            document.getElementById("currentLevel");
-
-        const targetLevel =
-            document.getElementById("targetLevel");
+    let currentSkillName = "";
 
 
-        for (let level = 1; level <= 140; level++) {
+    /*
+        XP BOOST STATE
 
-            const optionCurrent =
-                document.createElement("option");
+        Only one boost can be active at a time (0, 0.25, or 0.5).
+        This does NOT touch currentXP or the XP-to-next-level
+        formula — it only boosts the XP a material gives, which
+        is used later to work out how many of it you still need.
+    */
 
-            optionCurrent.value = level;
-
-            optionCurrent.textContent =
-                "Level " + level;
-
-            currentLevel.appendChild(optionCurrent);
+    let xpBoost = 0;
 
 
-            const optionTarget =
-                document.createElement("option");
+    function setXPBoost(percentage, button) {
 
-            optionTarget.value = level;
+        const allBoostButtons =
+            document.querySelectorAll(".bonus-button");
 
-            optionTarget.textContent =
-                "Level " + level;
+        if (xpBoost === percentage) {
 
-            targetLevel.appendChild(optionTarget);
+            // clicking the active boost again turns it off
+            xpBoost = 0;
+            button.classList.remove("active-boost");
 
+        } else {
+
+            xpBoost = percentage;
+
+            allBoostButtons.forEach((btn) => {
+                btn.classList.remove("active-boost");
+            });
+
+            button.classList.add("active-boost");
+
+        }
+
+        // if a result is already on screen, refresh it right away
+        // instead of waiting for another tap on CALCULATE
+        const result =
+            document.getElementById("result");
+
+        if (result.classList.contains("show")) {
+            calculateXP();
         }
 
     }
@@ -417,17 +456,24 @@
 
     /*
         FILL MATERIALS
-        Populates the materials <select> for the given skill.
+        Populates the materials <select> for the given skill,
+        keeping only materials whose minLevel is at or below
+        the current level typed in the Current Level field.
         Hides the whole section if the skill has no materials.
     */
 
     function fillMaterials(skill) {
+
+        currentSkillName = skill;
 
         const section =
             document.getElementById("materialsSection");
 
         const select =
             document.getElementById("material");
+
+        const currentLevelValue =
+            Number(document.getElementById("currentLevel").value) || 0;
 
         select.innerHTML =
             '<option value="">None (optional)</option>';
@@ -437,6 +483,11 @@
             section.classList.add("show");
 
             materials[skill].forEach((mat, index) => {
+
+                // skip materials above the player's current level
+                if (mat.minLevel > currentLevelValue) {
+                    return;
+                }
 
                 const option =
                     document.createElement("option");
@@ -455,6 +506,25 @@
             section.classList.remove("show");
 
         }
+
+    }
+
+
+    /*
+        RESET BOOST STATE
+        Called whenever a new skill is opened, so a boost
+        picked on one skill doesn't silently carry over.
+    */
+
+    function resetBoost() {
+
+        xpBoost = 0;
+
+        document
+            .querySelectorAll(".bonus-button")
+            .forEach((btn) => {
+                btn.classList.remove("active-boost");
+            });
 
     }
 
@@ -479,33 +549,11 @@
 
         fillMaterials(skill);
 
+        resetBoost();
+
         document
             .getElementById("result")
             .classList.remove("show");
-
-    }
-
-
-    /*
-        ADD XP BONUS
-        Adds percentage of current XP value
-    */
-
-    function addXPBonus(percentage) {
-
-        const currentXPInput =
-            document.getElementById("currentXP");
-
-        const currentValue =
-            Number(currentXPInput.value) || 0;
-
-        const bonus =
-            Math.floor(currentValue * percentage);
-
-        const newValue =
-            currentValue + bonus;
-
-        currentXPInput.value = newValue;
 
     }
 
@@ -557,6 +605,23 @@
     }
 
 
+    if (currentLevel < 1 ||
+        currentLevel > 140 ||
+        targetLevel < 1 ||
+        targetLevel > 140) {
+
+        result.classList.add("show");
+
+        document.getElementById("targetXP").innerHTML =
+            '<span class="error">Levels must be between 1 and 140.</span>';
+
+        document.getElementById("remainingXP").textContent =
+            "-";
+
+        return;
+    }
+
+
     if (targetLevel <= currentLevel) {
 
         result.classList.add("show");
@@ -599,6 +664,10 @@
 
     /*
         SUBTRACT XP THE PLAYER ALREADY HAS
+
+        This is the real XP gap to the target level.
+        The boost never changes this number — it only
+        changes how many materials are needed to cover it.
     */
 
     const remainingXP =
@@ -618,6 +687,11 @@
         IF A MATERIAL IS SELECTED, ALSO SHOW
         HOW MANY OF IT ARE NEEDED TO COVER
         THE REMAINING XP.
+
+        The boost is applied here: it raises the XP each
+        material gives, so fewer of them are needed to
+        cover the same remainingXP. remainingXP itself
+        stays untouched.
     */
 
     const materialSelect =
@@ -634,8 +708,11 @@
         const mat =
             materials[currentSkill][materialIndex];
 
+        const boostedXP =
+            mat.xp * (1 + xpBoost);
+
         const qtyNeeded =
-            Math.ceil(remainingXP / mat.xp);
+            Math.ceil(remainingXP / boostedXP);
 
         document.getElementById("remainingXP").textContent =
             remainingXP.toLocaleString("en-US") +
@@ -669,13 +746,6 @@
             .classList.add("active");
 
     }
-
-
-    /*
-        START
-    */
-
-    fillLevels();
 
 </script>
 
