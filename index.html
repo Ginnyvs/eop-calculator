@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EoP Calculator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 14px;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 9px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 14px;
+        }
+
+        .calculate {
+            background: #2563eb;
+            color: white;
+        }
+
+        .add {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        .result {
+            display: none;
+        }
+
+        .skill {
+            border-top: 1px solid #e5e7eb;
+            margin-top: 18px;
+            padding-top: 18px;
+        }
+
+        .skill:first-of-type {
+            border-top: none;
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        .result-box {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🎮 EoP Calculator</h1>
+
+    <div class="subtitle">
+        XP, materials and skills calculator
+    </div>
+
+    <!-- CHARACTER -->
+    <div class="card">
+
+        <h2>Character</h2>
+
+        <label for="currentLevel">Current Level</label>
+        <input
+            type="number"
+            id="currentLevel"
+            min="1"
+            placeholder="Enter current level"
+        >
+
+        <label for="targetLevel">Target Level</label>
+        <input
+            type="number"
+            id="targetLevel"
+            min="1"
+            placeholder="Enter target level"
+        >
+
+        <label for="currentXP">Current XP</label>
+        <input
+            type="number"
+            id="currentXP"
+            min="0"
+            placeholder="Enter current XP"
+        >
+
+    </div>
+
+
+    <!-- MATERIAL -->
+    <div class="card">
+
+        <h2>📦 Materials</h2>
+
+        <label for="material">Material</label>
+
+        <select id="material">
+            <option value="">Select a material</option>
+            <option value="material1">Material 1</option>
+            <option value="material2">Material 2</option>
+            <option value="material3">Material 3</option>
+        </select>
+
+        <label for="materialAmount">
+            Amount you currently have
+        </label>
+
+        <input
+            type="number"
+            id="materialAmount"
+            min="0"
+            placeholder="Enter amount"
+        >
+
+    </div>
+
+
+    <!-- SKILLS -->
+    <div class="card">
+
+        <h2>⚔️ Skills</h2>
+
+        <div class="skill">
+
+            <h3>Skill 1</h3>
+
+            <label>Current Level</label>
+            <input
+                type="number"
+                min="1"
+                placeholder="Current skill level"
+            >
+
+            <label>Target Level</label>
+            <input
+                type="number"
+                min="1"
+                placeholder="Target skill level"
+            >
+
+            <label>Material</label>
+            <select>
+                <option value="">Select a material</option>
+                <option>Material 1</option>
+                <option>Material 2</option>
+                <option>Material 3</option>
+            </select>
+
+        </div>
+
+
+        <div class="skill">
+
+            <h3>Skill 2</h3>
+
+            <label>Current Level</label>
+            <input
+                type="number"
+                min="1"
+                placeholder="Current skill level"
+            >
+
+            <label>Target Level</label>
+            <input
+                type="number"
+                min="1"
+                placeholder="Target skill level"
+            >
+
+            <label>Material</label>
+            <select>
+                <option value="">Select a material</option>
+                <option>Material 1</option>
+                <option>Material 2</option>
+                <option>Material 3</option>
+            </select>
+
+        </div>
+
+
+        <button class="add" type="button">
+            + Add Skill
+        </button>
+
+    </div>
+
+
+    <!-- CALCULATE -->
+    <div class="card">
+
+        <button class="calculate" type="button">
+            CALCULATE
+        </button>
+
+    </div>
+
+
+    <!-- RESULTS -->
+    <div class="card result" id="results">
+
+        <h2>📊 Results</h2>
+
+        <div class="result-box">
+            <strong>XP required:</strong>
+            <div id="xpRequired">—</div>
+        </div>
+
+        <div class="result-box">
+            <strong>XP remaining:</strong>
+            <div id="xpRemaining">—</div>
+        </div>
+
+        <div class="result-box">
+            <strong>Materials required:</strong>
+            <div id="materialsRequired">—</div>
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+        EoP Calculator
+    </div>
+
+</div>
+
+</body>
+  </html>
