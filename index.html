@@ -120,6 +120,20 @@
             transform: scale(0.98);
         }
 
+        /*
+            MATERIALS SECTION
+            Hidden by default. Shown (via the "show" class)
+            only when the current skill has a materials list.
+        */
+        .materials-section {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .materials-section.show {
+            display: block;
+        }
+
         .calculate-button {
             width: 100%;
             margin-top: 25px;
@@ -258,6 +272,23 @@
                 </button>
             </div>
 
+            <!--
+                MATERIALS SECTION
+                Only shown for skills that have a materials list
+                defined in the "materials" object in the script below.
+            -->
+            <div id="materialsSection" class="materials-section">
+
+                <label for="material">
+                    Material
+                </label>
+
+                <select id="material">
+                    <option value="">None (optional)</option>
+                </select>
+
+            </div>
+
             <button
                 class="calculate-button"
                 onclick="calculateXP()"
@@ -320,6 +351,29 @@
 
 
     /*
+        MATERIALS PER SKILL
+
+        Each skill can have its own list of materials.
+        Fill in the real in-game values here. Skills that
+        aren't listed here simply won't show the section.
+    */
+
+    const materials = {
+        Woodcutting: [
+            { name: "Birch", minLevel : 1, xp: 10 },
+            { name: "Maple", minLevel: 10, xp: 35 },
+            { name: "Oak", minLevel: 20, xp: 120 },
+            { name: "Cypress", minLevel: 30, xp: 325 },
+            { name: "Pine", minLevel: 40, xp: 575 },
+            { name: "Fir", minLevel: 50, xp: 875 }
+
+           // add the rest of EoP's woods here
+        ]
+        // other skills can get their own lists later
+    };
+
+
+    /*
         CREATE LEVEL OPTIONS
         Levels 1 through 140
     */
@@ -362,6 +416,50 @@
 
 
     /*
+        FILL MATERIALS
+        Populates the materials <select> for the given skill.
+        Hides the whole section if the skill has no materials.
+    */
+
+    function fillMaterials(skill) {
+
+        const section =
+            document.getElementById("materialsSection");
+
+        const select =
+            document.getElementById("material");
+
+        select.innerHTML =
+            '<option value="">None (optional)</option>';
+
+        if (materials[skill]) {
+
+            section.classList.add("show");
+
+            materials[skill].forEach((mat, index) => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = index;
+
+                option.textContent =
+                    mat.name + " (" + mat.xp + " XP)";
+
+                select.appendChild(option);
+
+            });
+
+        } else {
+
+            section.classList.remove("show");
+
+        }
+
+    }
+
+
+    /*
         OPEN SKILL
     */
 
@@ -378,6 +476,8 @@
         document
             .getElementById("skillTitle")
             .textContent = skill;
+
+        fillMaterials(skill);
 
         document
             .getElementById("result")
@@ -514,9 +614,39 @@
         totalXP.toLocaleString("en-US");
 
 
-    document.getElementById("remainingXP")
-        .textContent =
-        remainingXP.toLocaleString("en-US");
+    /*
+        IF A MATERIAL IS SELECTED, ALSO SHOW
+        HOW MANY OF IT ARE NEEDED TO COVER
+        THE REMAINING XP.
+    */
+
+    const materialSelect =
+        document.getElementById("material");
+
+    const materialIndex =
+        materialSelect.value;
+
+    if (materialIndex !== "") {
+
+        const currentSkill =
+            document.getElementById("skillTitle").textContent;
+
+        const mat =
+            materials[currentSkill][materialIndex];
+
+        const qtyNeeded =
+            Math.ceil(remainingXP / mat.xp);
+
+        document.getElementById("remainingXP").textContent =
+            remainingXP.toLocaleString("en-US") +
+            " (" + qtyNeeded.toLocaleString("en-US") + "x " + mat.name + ")";
+
+    } else {
+
+        document.getElementById("remainingXP").textContent =
+            remainingXP.toLocaleString("en-US");
+
+    }
 
 
     result.classList.add("show");
