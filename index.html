@@ -359,93 +359,112 @@
 
     function calculateXP() {
 
-        const currentLevel =
-            Number(
-                document.getElementById("currentLevel").value
-            );
+    const currentLevel =
+        Number(
+            document.getElementById("currentLevel").value
+        );
 
-        const targetLevel =
-            Number(
-                document.getElementById("targetLevel").value
-            );
+    const targetLevel =
+        Number(
+            document.getElementById("targetLevel").value
+        );
 
-        const currentXP =
-            Number(
-                document.getElementById("currentXP").value
-            );
+    const currentXPInput =
+        document.getElementById("currentXP").value;
 
+    const currentXP =
+        Number(currentXPInput);
 
-        const result =
-            document.getElementById("result");
-
-
-        /*
-            CHECK INPUTS
-        */
-
-        if (!currentLevel ||
-            !targetLevel ||
-            currentXP < 0) {
-
-            result.classList.add("show");
-
-            document.getElementById("targetXP").innerHTML =
-                '<span class="error">Please fill in all fields.</span>';
-
-            document.getElementById("remainingXP").textContent =
-                "-";
-
-            return;
-        }
+    const result =
+        document.getElementById("result");
 
 
-        if (targetLevel <= currentLevel) {
+    /*
+        CHECK INPUTS
+    */
 
-            result.classList.add("show");
-
-            document.getElementById("targetXP").innerHTML =
-                '<span class="error">Target level must be higher than current level.</span>';
-
-            document.getElementById("remainingXP").textContent =
-                "-";
-
-            return;
-        }
-
-
-        /*
-            GET XP REQUIRED FOR TARGET LEVEL
-        */
-
-        const targetXP =
-            getXP(targetLevel);
-
-
-        /*
-            XP STILL NEEDED
-        */
-
-        const remainingXP =
-            Math.max(0, targetXP - currentXP);
-
-
-        /*
-            SHOW RESULTS
-        */
-
-        document.getElementById("targetXP")
-            .textContent =
-            targetXP.toLocaleString("en-US");
-
-
-        document.getElementById("remainingXP")
-            .textContent =
-            remainingXP.toLocaleString("en-US");
-
+    if (!currentLevel ||
+        !targetLevel ||
+        currentXPInput === "" ||
+        currentXP < 0) {
 
         result.classList.add("show");
 
+        document.getElementById("targetXP").innerHTML =
+            '<span class="error">Please fill in all fields.</span>';
+
+        document.getElementById("remainingXP").textContent =
+            "-";
+
+        return;
     }
+
+
+    if (targetLevel <= currentLevel) {
+
+        result.classList.add("show");
+
+        document.getElementById("targetXP").innerHTML =
+            '<span class="error">Target level must be higher than current level.</span>';
+
+        document.getElementById("remainingXP").textContent =
+            "-";
+
+        return;
+    }
+
+
+    /*
+        ADD XP FOR EVERY LEVEL
+
+        Example:
+        Level 1 → 19
+
+        1→2
+        2→3
+        3→4
+        ...
+        18→19
+    */
+
+    let totalXP = 0;
+
+    for (
+        let level = currentLevel;
+        level < targetLevel;
+        level++
+    ) {
+
+        totalXP += getXP(level);
+
+    }
+
+
+    /*
+        SUBTRACT XP THE PLAYER ALREADY HAS
+    */
+
+    const remainingXP =
+        Math.max(0, totalXP - currentXP);
+
+
+    /*
+        SHOW RESULTS
+    */
+
+    document.getElementById("targetXP")
+        .textContent =
+        totalXP.toLocaleString("en-US");
+
+
+    document.getElementById("remainingXP")
+        .textContent =
+        remainingXP.toLocaleString("en-US");
+
+
+    result.classList.add("show");
+
+}
 
 
     /*
