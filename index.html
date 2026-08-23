@@ -98,6 +98,28 @@
             font-family: inherit;
         }
 
+        .bonus-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .bonus-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 9px;
+            background: #4a6fa5;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bonus-button:active {
+            transform: scale(0.98);
+        }
+
         .calculate-button {
             width: 100%;
             margin-top: 25px;
@@ -224,9 +246,17 @@
                 id="currentXP"
                 min="0"
                 placeholder="Enter your current XP"
-                valeu="0"
+                value="0"
             >
 
+            <div class="bonus-buttons">
+                <button class="bonus-button" onclick="addXPBonus(0.5)">
+                    ✨ +50% XP
+                </button>
+                <button class="bonus-button" onclick="addXPBonus(1.0)">
+                    ⭐ +100% XP
+                </button>
+            </div>
 
             <button
                 class="calculate-button"
@@ -352,6 +382,30 @@
         document
             .getElementById("result")
             .classList.remove("show");
+
+    }
+
+
+    /*
+        ADD XP BONUS
+        Adds percentage of current XP value
+    */
+
+    function addXPBonus(percentage) {
+
+        const currentXPInput =
+            document.getElementById("currentXP");
+
+        const currentValue =
+            Number(currentXPInput.value) || 0;
+
+        const bonus =
+            Math.floor(currentValue * percentage);
+
+        const newValue =
+            currentValue + bonus;
+
+        currentXPInput.value = newValue;
 
     }
 
