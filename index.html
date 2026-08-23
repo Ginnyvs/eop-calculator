@@ -92,9 +92,26 @@
             font-size: 16px;
         }
 
-        .back-button {
+        button {
+            font-family: inherit;
+        }
+
+        .calculate-button {
             width: 100%;
             margin-top: 25px;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            background: #2d7d46;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .back-button {
+            width: 100%;
+            margin-top: 15px;
             padding: 14px;
             border: none;
             border-radius: 9px;
@@ -104,16 +121,31 @@
             cursor: pointer;
         }
 
-        .material-section {
-            margin-top: 28px;
-            padding-top: 22px;
-            border-top: 1px solid #444;
+        .result {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 14px;
+            background: #202020;
+            border: 1px solid #444;
         }
 
-        .subtitle {
-            text-align: center;
-            color: #aaa;
-            margin-bottom: 25px;
+        .result.show {
+            display: block;
+        }
+
+        .result p {
+            margin: 12px 0;
+            font-size: 18px;
+        }
+
+        .result strong {
+            font-size: 20px;
+        }
+
+        .error {
+            color: #ff7777;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -122,14 +154,12 @@
 
 <div class="container">
 
-    <!-- HOME SCREEN -->
+    <!-- HOME -->
     <div id="home" class="screen active">
 
         <h1>🎮 EoP Calculator</h1>
 
-        <div class="subtitle">
-            Choose a skill
-        </div>
+        <h2>Choose a skill</h2>
 
         <div class="skills">
 
@@ -158,8 +188,8 @@
     </div>
 
 
-    <!-- SKILL SCREEN -->
-    <div id="skillScreen" class="screen">
+    <!-- CALCULATOR -->
+    <div id="calculator" class="screen">
 
         <h1 id="skillTitle">Skill</h1>
 
@@ -195,27 +225,38 @@
             >
 
 
-            <!-- MATERIAL -->
-            <div class="material-section">
-
-                <label for="material">
-                    Material
-                </label>
-
-                <select id="material">
-
-                    <option value="">
-                        Materials will be added later
-                    </option>
-
-                </select>
-
-            </div>
+            <button
+                class="calculate-button"
+                onclick="calculateXP()"
+            >
+                CALCULATE
+            </button>
 
         </div>
 
 
-        <button class="back-button" onclick="goHome()">
+        <!-- RESULT -->
+        <div id="result" class="result">
+
+            <p>
+                XP required for target level:
+                <br>
+                <strong id="targetXP">-</strong>
+            </p>
+
+            <p>
+                XP remaining:
+                <br>
+                <strong id="remainingXP">-</strong>
+            </p>
+
+        </div>
+
+
+        <button
+            class="back-button"
+            onclick="goHome()"
+        >
             ← Back
         </button>
 
@@ -226,24 +267,29 @@
 
 <script>
 
-    const knownLevels = [
-        1, 2, 3, 4, 5,
-        6, 7, 8, 9, 10,
-        11, 12, 13, 14, 15,
-        16, 17, 18, 19, 20,
-        26,
-        49,
-        52,
-        62,
-        63,
-        71,
-        72,
-        76,
-        84,
-        90,
-        96
-    ];
+    /*
+        EoP XP FORMULA
 
+        XP = floor(100 × 1.14^(level - 1))
+
+        The formula can calculate levels
+        from 1 to 140 without storing
+        every XP value individually.
+    */
+
+    function getXP(level) {
+
+        return Math.floor(
+            100 * Math.pow(1.14, level - 1)
+        );
+
+    }
+
+
+    /*
+        CREATE LEVEL OPTIONS
+        Levels 1 through 140
+    */
 
     function fillLevels() {
 
@@ -254,54 +300,174 @@
             document.getElementById("targetLevel");
 
 
-        knownLevels.forEach(level => {
+        for (let level = 1; level <= 140; level++) {
 
-            const option1 =
+            const optionCurrent =
                 document.createElement("option");
 
-            option1.value = level;
-            option1.textContent = "Level " + level;
+            optionCurrent.value = level;
 
-            currentLevel.appendChild(option1);
+            optionCurrent.textContent =
+                "Level " + level;
+
+            currentLevel.appendChild(optionCurrent);
 
 
-            const option2 =
+            const optionTarget =
                 document.createElement("option");
 
-            option2.value = level;
-            option2.textContent = "Level " + level;
+            optionTarget.value = level;
 
-            targetLevel.appendChild(option2);
+            optionTarget.textContent =
+                "Level " + level;
 
-        });
+            targetLevel.appendChild(optionTarget);
+
+        }
 
     }
 
+
+    /*
+        OPEN SKILL
+    */
 
     function openSkill(skill) {
 
-        document.getElementById("home")
+        document
+            .getElementById("home")
             .classList.remove("active");
 
-        document.getElementById("skillScreen")
+        document
+            .getElementById("calculator")
             .classList.add("active");
 
-        document.getElementById("skillTitle")
+        document
+            .getElementById("skillTitle")
             .textContent = skill;
+
+        document
+            .getElementById("result")
+            .classList.remove("show");
 
     }
 
+
+    /*
+        CALCULATE XP
+    */
+
+    function calculateXP() {
+
+        const currentLevel =
+            Number(
+                document.getElementById("currentLevel").value
+            );
+
+        const targetLevel =
+            Number(
+                document.getElementById("targetLevel").value
+            );
+
+        const currentXP =
+            Number(
+                document.getElementById("currentXP").value
+            );
+
+
+        const result =
+            document.getElementById("result");
+
+
+        /*
+            CHECK INPUTS
+        */
+
+        if (!currentLevel ||
+            !targetLevel ||
+            currentXP < 0) {
+
+            result.classList.add("show");
+
+            document.getElementById("targetXP").innerHTML =
+                '<span class="error">Please fill in all fields.</span>';
+
+            document.getElementById("remainingXP").textContent =
+                "-";
+
+            return;
+        }
+
+
+        if (targetLevel <= currentLevel) {
+
+            result.classList.add("show");
+
+            document.getElementById("targetXP").innerHTML =
+                '<span class="error">Target level must be higher than current level.</span>';
+
+            document.getElementById("remainingXP").textContent =
+                "-";
+
+            return;
+        }
+
+
+        /*
+            GET XP REQUIRED FOR TARGET LEVEL
+        */
+
+        const targetXP =
+            getXP(targetLevel);
+
+
+        /*
+            XP STILL NEEDED
+        */
+
+        const remainingXP =
+            Math.max(0, targetXP - currentXP);
+
+
+        /*
+            SHOW RESULTS
+        */
+
+        document.getElementById("targetXP")
+            .textContent =
+            targetXP.toLocaleString("en-US");
+
+
+        document.getElementById("remainingXP")
+            .textContent =
+            remainingXP.toLocaleString("en-US");
+
+
+        result.classList.add("show");
+
+    }
+
+
+    /*
+        BACK TO HOME
+    */
 
     function goHome() {
 
-        document.getElementById("skillScreen")
+        document
+            .getElementById("calculator")
             .classList.remove("active");
 
-        document.getElementById("home")
+        document
+            .getElementById("home")
             .classList.add("active");
 
     }
 
+
+    /*
+        START
+    */
 
     fillLevels();
 
