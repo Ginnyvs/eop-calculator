@@ -144,6 +144,19 @@
             display: block;
         }
 
+        /*
+            MATERIALS NEEDED ROW
+            Only shown when the selected item is crafted from
+            other raw materials (has a "requires" recipe).
+        */
+        .materials-needed-row {
+            display: none;
+        }
+
+        .materials-needed-row.show {
+            display: block;
+        }
+
         .calculate-button {
             width: 100%;
             margin-top: 25px;
@@ -253,7 +266,7 @@
                 min="1"
                 max="140"
                 placeholder="Enter your current level"
-                oninput="fillMaterials(currentSkillName)"
+                oninput="clampLevel(this); fillMaterials(currentSkillName)"
             >
 
 
@@ -267,6 +280,7 @@
                 min="1"
                 max="140"
                 placeholder="Enter your target level"
+                oninput="clampLevel(this)"
             >
 
 
@@ -333,6 +347,18 @@
                 <strong id="remainingXP">-</strong>
             </p>
 
+            <p id="materialsNeededRow" class="materials-needed-row">
+                Material needed:
+                <br>
+                <strong id="materialsNeeded">-</strong>
+            </p>
+
+            <p id="producesRow" class="materials-needed-row">
+                Produces:
+                <br>
+                <strong id="producesAmount">-</strong>
+            </p>
+
         </div>
 
 
@@ -370,6 +396,22 @@
 
 
     /*
+        CLAMP LEVEL
+        If the player types something above 140, snap it
+        back down to 140 right away instead of waiting for
+        CALCULATE to reject it.
+    */
+
+    function clampLevel(input) {
+
+        if (Number(input.value) > 140) {
+            input.value = 140;
+        }
+
+    }
+
+
+    /*
         MATERIALS PER SKILL
 
         Each skill can have its own list of materials.
@@ -378,6 +420,18 @@
 
         minLevel is the current level required to be able to
         pick this material at all (see fillMaterials below).
+
+        Some items are CRAFTED from other materials instead of
+        gathered directly (Carving, Forge). Those get a "requires"
+        array: what raw materials, and how many of each, one
+        crafting action consumes. "yields" is optional and just
+        records how many finished items one action produces
+        (informational only — XP is per action, not per item).
+
+        Combat doesn't fit this gather/craft shape at all (no
+        materials, most likely XP per monster kill instead), so
+        it's deliberately left out of this object. We'll design
+        its own structure once you send an example for it.
     */
 
     const materials = {
@@ -390,8 +444,41 @@
             { name: "Fir", minLevel: 50, xp: 875 }
 
            // add the rest of EoP's woods here
+        ],
+
+        Carving: [
+            {
+                name: "Damage Totem",
+                minLevel: 1,
+                xp: 10,
+                yields: 3,
+                requires: [
+                    { name: "Birch Log", amount: 1 }
+                ]
+            }
+            // add the rest of EoP's carved items here
+        ],
+
+        Mining: [
+            { name: "Copper Ore", minLevel: 1, xp: 10 },
+            { name: "Tin Ore", minLevel: 10, xp: 35 }
+            // add the rest of EoP's ores here
+        ],
+
+        Forge: [
+            {
+                name: "Bronze Bar",
+                minLevel: 1,
+                xp: 30,
+                requires: [
+                    { name: "Copper Ore", amount: 7 },
+                    { name: "Tin Ore", amount: 2 }
+                ]
+            }
+            // add the rest of EoP's forged items here
         ]
-        // other skills can get their own lists later
+
+        // Combat: its own structure comes later
     };
 
 
@@ -489,13 +576,18 @@
                     return;
                 }
 
+                // skip materials whose XP hasn't been filled in yet
+                if (mat.xp == null) {
+                    return;
+                }
+
                 const option =
                     document.createElement("option");
 
                 option.value = index;
 
                 option.textContent =
-                    mat.name + " (" + mat.xp + " XP)";
+                    mat.name;
 
                 select.appendChild(option);
 
@@ -718,36 +810,48 @@
             remainingXP.toLocaleString("en-US") +
             " (" + qtyNeeded.toLocaleString("en-US") + "x " + mat.name + ")";
 
-    } else {
+        const materialsNeededRow =
+            document.getElementById("materialsNeededRow");
 
-        document.getElementById("remainingXP").textContent =
-            remainingXP.toLocaleString("en-US");
+        // crafted items (Carving, Forge) show how much of each
+        // raw material that many crafts consume, in its own row
+        if (mat.requires) {
 
-    }
+            const rawLines = mat.requires.map((req) => {
 
+                const rawNeeded =
+                    qtyNeeded * req.amount;
 
-    result.classList.add("show");
+                return rawNeeded.toLocaleString("en-US") + "x " + req.name;
 
-}
+            });
 
+            document.getElementById("materialsNeeded").textContent =
+                rawLines.join(", ");
 
-    /*
-        BACK TO HOME
-    */
+            materialsNeededRow.classList.add("show");
 
-    function goHome() {
+        } else {
 
-        document
-            .getElementById("calculator")
-            .classList.remove("active");
+            materialsNeededRow.classList.remove("show");
 
-        document
-            .getElementById("home")
-            .classList.add("active");
+        }
 
-    }
+        const producesRow =
+            document.getElementById("producesRow");
 
-</script>
+        // if one crafting action yields more than one finished
+        // item (e.g. 1 log → 3 totems), show the real total
+        if (mat.yields) {
 
-</body>
-</html>
+            const totalProduced =
+                qtyNeeded * mat.yields;
+
+            document.getElementById("producesAmount").textContent =
+                totalProduced.toLocaleString("en-US") + "x " + mat.name;
+
+            producesRow.classList.add("show");
+
+        } else {
+
+            producesRow.classList.remove("show");
