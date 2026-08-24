@@ -853,4 +853,61 @@
             document.getElementById("producesRow");
 
         // if one crafting action yields more than one finished
-        // item (e.g. 1 log
+        // item (e.g. 1 log → 3 totems), show the real total
+        if (mat.yields) {
+
+            const totalProduced =
+                qtyNeeded * mat.yields;
+
+            document.getElementById("producesAmount").textContent =
+                totalProduced.toLocaleString("en-US") + "x " + mat.name;
+
+            producesRow.classList.add("show");
+
+        } else {
+
+            producesRow.classList.remove("show");
+
+        }
+
+    } else {
+
+        document.getElementById("remainingXP").textContent =
+            remainingXP.toLocaleString("en-US");
+
+        document
+            .getElementById("materialsNeededRow")
+            .classList.remove("show");
+
+        document
+            .getElementById("producesRow")
+            .classList.remove("show");
+
+    }
+
+
+    result.classList.add("show");
+
+}
+
+
+    /*
+        BACK TO HOME
+    */
+
+    function goHome() {
+
+        document
+            .getElementById("calculator")
+            .classList.remove("active");
+
+        document
+            .getElementById("home")
+            .classList.add("active");
+
+    }
+
+</script>
+
+</body>
+</html>
