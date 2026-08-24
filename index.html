@@ -329,24 +329,13 @@ function clampLevel(input) {
   }
 }
 
-/*
-  MATERIALS PER SKILL
-  Woodcutting/Mining/Combat: lista simples { name, minLevel, xp }.
-  Carving: itens crafted, com "requires" (matéria-prima) e "yields" opcional.
-  Forge tem duas listas:
-    - bars: barras, cada uma com "requires" apontando para minérios (Mining)
-    - equipment: armas/armaduras, com "requires" apontando para NOMES DE BARRAS
-  Na UI, primeiro escolhe-se a barra; o segundo <select> (forgeCraft) então
-  só mostra os equipamentos que usam aquela barra, filtrados por "requires".
-  Isso permite comparar craftar equipamento com barras já prontas
-  vs. forjar as barras do zero junto (ver calculateXP).
-*/
+
 const materials = {
   Woodcutting: [
     { name: "Birch", minLevel: 1, xp: 10 },
     { name: "Maple", minLevel: 10, xp: 35 },
     { name: "Oak", minLevel: 20, xp: 120 },
-    { name: "Cypress", minLevel: 30, xp: 325 },
+    { name: "Cypress", minLevel: 30, xp: 350 },
     { name: "Pine", minLevel: 40, xp: 575 },
     { name: "Fir", minLevel: 50, xp: 875 }
     // add the rest of EoP's woods here
@@ -356,7 +345,23 @@ const materials = {
     {
       name: "Damage Totem", minLevel: 1, xp: 10, yields: 3,
       requires: [{ name: "Birch Log", amount: 1 }]
-    }
+    },
+{
+ name: "Critical Totem", minLevel: 10, xp: 35, yields: 3,
+requires: [{ name: "Maple Log", amount: 1}]
+},
+{ 
+ name: "Experience Totem", minLevel: 20, xp:120, yields: 3,
+requires: [{ name: "Oak Log", amount: 1 }]
+},
+{
+ name: "Evasion Totem", minLevel: 30, xp: 350,yields: 3,
+requires: [{ name: Cypress Log", amount: 1}]
+},
+{
+ name: "Earth Totem", minLevel: 40, xp: 575, yields: 3,
+ requires: [{ name: "Pine Log", amount: 1}]
+}
     // add the rest of EoP's carved items here
   ],
 
