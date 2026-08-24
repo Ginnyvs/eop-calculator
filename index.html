@@ -500,7 +500,7 @@ function fillMaterials(skill) {
   if (list) {
     section.classList.add("show");
     list.forEach((mat, index) => {
-      if (mat.minLevel > currentLevelValue) return;
+      if (skill !== "Combat" && mat.minLevel > currentLevelValue) return;
       if (mat.xp == null) return;
       const option = document.createElement("option");
       option.value = index;
