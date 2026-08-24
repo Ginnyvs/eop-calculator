@@ -1,951 +1,657 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>EoP Calculator</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: auto;
-            padding: 30px 20px 40px;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 30px;
-            margin: 10px 0 8px;
-        }
-
-        h2 {
-            text-align: center;
-            font-size:  22px;
-            margin-bottom: 30px;
-        }
-
-        .screen {
-            display: none;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        .skills {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .skill-button {
-            width: 100%;
-            padding: 18px 20px;
-            border: 1px solid #444;
-            border-radius: 14px;
-            background: #222;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: left;
-            cursor: pointer;
-        }
-
-        .skill-button:active {
-            transform: scale(0.98);
-        }
-
-        .form-section {
-            background: #1d1d1d;
-            padding: 16px;
-            border-radius: 14px;
-        }
-
-        label {
-            display: block;
-            margin: 14px 0 6px;
-            font-weight: bold;
-            font-size:  16px;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 11px;
-            border-radius: 9px;
-            border: 1px solid #555;
-            background: #111;
-            color: white;
-            font-size: 15px;
-        }
-
-        button {
-            font-family: inherit;
-        }
-
-        .bonus-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .bonus-button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 9px;
-            background: #4a6fa5;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .bonus-button:active {
-            transform: scale(0.98);
-        }
-
-        /*
-            ACTIVE BOOST STATE
-            Applied to whichever boost button is currently on,
-            so the player can see which one (if any) is active.
-        */
-        .bonus-button.active-boost {
-            background: #e0a020;
-            color: #111;
-        }
-
-        /*
-            MATERIALS SECTION
-            Hidden by default. Shown (via the "show" class)
-            only when the current skill has a materials list.
-        */
-        .materials-section {
-            display: none;
-            margin-top: 15px;
-        }
-
-        .materials-section.show {
-            display: block;
-        }
-
-        /*
-            MATERIALS NEEDED ROW
-            Only shown when the selected item is crafted from
-            other raw materials (has a "requires" recipe).
-        */
-        .materials-needed-row {
-            display: none;
-        }
-
-        .materials-needed-row.show {
-            display: block;
-        }
-
-        .calculate-button {
-            width: 100%;
-            margin-top: 25px;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
-            background: #2d7d46;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .back-button {
-            width: 100%;
-            margin-top: 15px;
-            padding: 14px;
-            border: none;
-            border-radius: 9px;
-            background: #333;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .result {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 14px;
-            background: #202020;
-            border: 1px solid #444;
-        }
-
-        .result.show {
-            display: block;
-        }
-
-        .result p {
-            margin: 12px 0;
-            font-size: 18px;
-        }
-
-        .result strong {
-            font-size: 20px;
-        }
-
-        .error {
-            color: #ff7777;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EoP Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0908;
+  --panel: #16130f;
+  --panel-border: #3a2f18;
+  --gold: #cfa348;
+  --gold-bright: #f0cf6c;
+  --gold-dim: #7a6329;
+  --text: #f1ead9;
+  --text-dim: #9c8f70;
+  --error: #ff6f61;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+.container {
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  padding: 16px 16px 24px;
+}
+h1 {
+  text-align: center;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  color: var(--gold-bright);
+  margin: 6px 0 0;
+}
+h2 {
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 0 0 16px;
+}
+.crest-divider {
+  width: 70px;
+  height: 2px;
+  margin: 10px auto 12px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.screen {
+  display: none;
+}
+.screen.active {
+  display: block;
+}
+.skills {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.skill-button {
+  aspect-ratio: 1.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 0 10px rgba(207, 163, 72, 0.1);
+  cursor: pointer;
+  padding: 6px;
+}
+.skill-button:active {
+  transform: scale(0.97);
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 14px rgba(240, 207, 108, 0.3);
+}
+.skill-button:last-child {
+  grid-column: 1 / -1;
+  width: 50%;
+  margin: 0 auto;
+}
+.skill-icon {
+  font-size: 20px;
+}
+.skill-name {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+  text-align: center;
+}
+.form-section {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  padding: 12px;
+  border-radius: 10px;
+}
+label {
+  display: block;
+  margin: 8px 0 4px;
+  font-weight: bold;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+input,
+select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 7px;
+  border: 1px solid var(--panel-border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+button {
+  font-family: inherit;
+}
+.bonus-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.bonus-button {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.bonus-button:active {
+  transform: scale(0.98);
+}
+.bonus-button.active-boost {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #0a0908;
+}
+.materials-section {
+  display: none;
+  margin-top: 8px;
+}
+.materials-section.show {
+  display: block;
+}
+.materials-needed-row {
+  display: none;
+}
+.materials-needed-row.show {
+  display: block;
+}
+.calculate-button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  color: #0a0908;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+.calculate-button:active {
+  transform: scale(0.98);
+}
+.back-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 9px;
+  border: 1px solid var(--panel-border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+}
+.result {
+  display: none;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+}
+.result.show {
+  display: block;
+}
+.result p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.result strong {
+  font-size: 15px;
+  color: var(--gold-bright);
+}
+.error {
+  color: var(--error);
+  font-weight: bold;
+}
+</style>
 </head>
-
 <body>
-
 <div class="container">
 
-    <!-- HOME -->
-    <div id="home" class="screen active">
+  <!-- HOME -->
+  <div id="home" class="screen active">
+    <h1>🎮 EoP Calculator</h1>
+    <div class="crest-divider"></div>
+    <h2>Choose a skill</h2>
+    <div class="skills">
+      <button class="skill-button" onclick="openSkill('Woodcutting')">
+        <span class="skill-icon">🌲</span><span class="skill-name">Woodcutting</span>
+      </button>
+      <button class="skill-button" onclick="openSkill('Carving')">
+        <span class="skill-icon">🪵</span><span class="skill-name">Carving</span>
+      </button>
+      <button class="skill-button" onclick="openSkill('Mining')">
+        <span class="skill-icon">⛏️</span><span class="skill-name">Mining</span>
+      </button>
+      <button class="skill-button" onclick="openSkill('Forge')">
+        <span class="skill-icon">🔥</span><span class="skill-name">Forge</span>
+      </button>
+      <button class="skill-button" onclick="openSkill('Combat')">
+        <span class="skill-icon">⚔️</span><span class="skill-name">Combat</span>
+      </button>
+    </div>
+  </div>
 
-        <h1>🎮 EoP Calculator</h1>
+  <!-- CALCULATOR -->
+  <div id="calculator" class="screen">
+    <h1 id="skillTitle">Skill</h1>
+    <div class="crest-divider"></div>
 
-        <h2>Choose a skill</h2>
+    <div class="form-section">
+      <label for="currentLevel">Current Level</label>
+      <input type="number" id="currentLevel" min="1" max="140"
+        placeholder="Enter your current level"
+        oninput="clampLevel(this); fillMaterials(currentSkillName)">
 
-        <div class="skills">
+      <label for="targetLevel">Target Level</label>
+      <input type="number" id="targetLevel" min="1" max="140"
+        placeholder="Enter your target level"
+        oninput="clampLevel(this)">
 
-            <button class="skill-button" onclick="openSkill('Woodcutting')">
-                🌲 Woodcutting
-            </button>
+      <label for="currentXP">Current XP</label>
+      <input type="number" id="currentXP" min="0"
+        placeholder="Enter your current XP" value="0">
 
-            <button class="skill-button" onclick="openSkill('Carving')">
-                🪵 Carving
-            </button>
+      <div class="bonus-buttons">
+        <button type="button" class="bonus-button" onclick="setXPBoost(0.25, this)">✨ +25% XP</button>
+        <button type="button" class="bonus-button" onclick="setXPBoost(0.5, this)">⭐ +50% XP</button>
+      </div>
 
-            <button class="skill-button" onclick="openSkill('Mining')">
-                ⛏️ Mining
-            </button>
+      <!-- Só aparece para skills com lista em "materials" -->
+      <div id="materialsSection" class="materials-section">
+        <label for="material" id="materialLabel">Material</label>
+        <select id="material" onchange="onMaterialChange()">
+          <option value="">None (optional)</option>
+        </select>
 
-            <button class="skill-button" onclick="openSkill('Forge')">
-                🔥 Forge
-            </button>
-
-            <button class="skill-button" onclick="openSkill('Combat')">
-                ⚔️ Combat
-            </button>
-
+        <!-- Só para Forge: crafts que usam a barra escolhida acima -->
+        <div id="forgeCraftSection" class="materials-section">
+          <label for="forgeCraft">Equipment</label>
+          <select id="forgeCraft" onchange="onForgeCraftChange()">
+            <option value="">None (just the bar)</option>
+          </select>
         </div>
+      </div>
 
+      <button class="calculate-button" onclick="calculateXP()">CALCULATE</button>
     </div>
 
-
-    <!-- CALCULATOR -->
-    <div id="calculator" class="screen">
-
-        <h1 id="skillTitle">Skill</h1>
-
-        <div class="form-section">
-
-            <label for="currentLevel">
-                Current Level
-            </label>
-
-            <input
-                type="number"
-                id="currentLevel"
-                min="1"
-                max="140"
-                placeholder="Enter your current level"
-                oninput="clampLevel(this); fillMaterials(currentSkillName)"
-            >
-
-
-            <label for="targetLevel">
-                Target Level
-            </label>
-
-            <input
-                type="number"
-                id="targetLevel"
-                min="1"
-                max="140"
-                placeholder="Enter your target level"
-                oninput="clampLevel(this)"
-            >
-
-
-            <label for="currentXP">
-                Current XP
-            </label>
-
-            <input
-                type="number"
-                id="currentXP"
-                min="0"
-                placeholder="Enter your current XP"
-                value="0"
-            >
-
-            <div class="bonus-buttons">
-                <button type="button" class="bonus-button" onclick="setXPBoost(0.25, this)">
-                    ✨ +25% XP
-                </button>
-                <button type="button" class="bonus-button" onclick="setXPBoost(0.5, this)">
-                    ⭐ +50% XP
-                </button>
-            </div>
-
-            <!--
-                MATERIALS SECTION
-                Only shown for skills that have a materials list
-                defined in the "materials" object in the script below.
-            -->
-            <div id="materialsSection" class="materials-section">
-
-                <label for="material" id="materialLabel">
-                    Material
-                </label>
-
-                <select id="material">
-                    <option value="">None (optional)</option>
-                </select>
-
-            </div>
-
-            <button
-                class="calculate-button"
-                onclick="calculateXP()"
-            >
-                CALCULATE
-            </button>
-
-        </div>
-
-
-        <!-- RESULT -->
-        <div id="result" class="result">
-
-            <p>
-                XP required for target level:
-                <br>
-                <strong id="targetXP">-</strong>
-            </p>
-
-            <p>
-                XP remaining:
-                <br>
-                <strong id="remainingXP">-</strong>
-            </p>
-
-            <p id="materialsNeededRow" class="materials-needed-row">
-                Material needed:
-                <br>
-                <strong id="materialsNeeded">-</strong>
-            </p>
-
-            <p id="producesRow" class="materials-needed-row">
-                Produces:
-                <br>
-                <strong id="producesAmount">-</strong>
-            </p>
-
-        </div>
-
-
-        <button
-            class="back-button"
-            onclick="goHome()"
-        >
-            ← Back
-        </button>
-
+    <!-- RESULT -->
+    <div id="result" class="result">
+      <p>XP required for target level:<br><strong id="targetXP">-</strong></p>
+      <p>XP remaining:<br><strong id="remainingXP">-</strong></p>
+      <p id="materialsNeededRow" class="materials-needed-row">
+        Material needed:<br><strong id="materialsNeeded">-</strong>
+      </p>
+      <p id="producesRow" class="materials-needed-row">
+        Produces:<br><strong id="producesAmount">-</strong>
+      </p>
+      <!-- Só para Forge: comparação "craftar equipamento" vs "forjar tudo do zero" -->
+      <div id="forgeCombinedRow" class="materials-needed-row">
+        <p style="margin-bottom: 6px;"><strong>Bars + Equipment</strong></p>
+        <p id="forgeCombinedList" style="margin: 0;">-</p>
+      </div>
     </div>
 
+    <button class="back-button" onclick="goHome()">← Back</button>
+  </div>
 </div>
 
-
 <script>
-
-    /*
-        EoP XP FORMULA
-
-        XP = floor(100 × 1.14^(level - 1))
-
-        The formula can calculate levels
-        from 1 to 140 without storing
-        every XP value individually.
-    */
-
-    function getXP(level) {
-
-        return Math.floor(
-            100 * Math.pow(1.14, level - 1)
-        );
-
-    }
-
-
-    /*
-        CLAMP LEVEL
-        If the player types something above 140, snap it
-        back down to 140 right away instead of waiting for
-        CALCULATE to reject it.
-    */
-
-    function clampLevel(input) {
-
-        if (Number(input.value) > 140) {
-            input.value = 140;
-        }
-
-    }
-
-
-    /*
-        MATERIALS PER SKILL
-
-        Each skill can have its own list of materials.
-        Fill in the real in-game values here. Skills that
-        aren't listed here simply won't show the section.
-
-        minLevel is the current level required to be able to
-        pick this material at all (see fillMaterials below).
-
-        Some items are CRAFTED from other materials instead of
-        gathered directly (Carving, Forge). Those get a "requires"
-        array: what raw materials, and how many of each, one
-        crafting action consumes. "yields" is optional and just
-        records how many finished items one action produces
-        (informational only — XP is per action, not per item).
-
-        Combat doesn't fit this gather/craft shape at all (no
-        materials, most likely XP per monster kill instead), so
-        it's deliberately left out of this object. We'll design
-        its own structure once you send an example for it.
-    */
-
-    const materials = {
-        Woodcutting: [
-            { name: "Birch", minLevel : 1, xp: 10 },
-            { name: "Maple", minLevel: 10, xp: 35 },
-            { name: "Oak", minLevel: 20, xp: 120 },
-            { name: "Cypress", minLevel: 30, xp: 325 },
-            { name: "Pine", minLevel: 40, xp: 575 },
-            { name: "Fir", minLevel: 50, xp: 875 }
-
-           // add the rest of EoP's woods here
-        ],
-
-        Carving: [
-            {
-                name: "Damage Totem",
-                minLevel: 1,
-                xp: 10,
-                yields: 3,
-                requires: [
-                    { name: "Birch Log", amount: 1 }
-                ]
-            }
-            // add the rest of EoP's carved items here
-        ],
-
-        Mining: [
-            { name: "Copper Ore", minLevel: 1, xp: 10 },
-            { name: "Tin Ore", minLevel: 10, xp: 35 },
-            { name: "Iron Ore", minLevel: 20, xp: 120 },
-            { name: "Silver Ore", minLevel: 30, xp: 300 },
-            { name: "Gold Ore", minLevel: 40, xp: 550 },
-            { name: "Titanium Ore", minLevel: 50, xp: 750 }
-            // add the rest of EoP's ores here
-        ],
-
-        Forge: [
-            {
-                name: "Bronze Bar",
-                minLevel: 1,
-                xp: 30,
-                requires: [
-                    { name: "Copper Ore", amount: 7 },
-                    { name: "Tin Ore", amount: 2 }
-                ]
-            },
-{
-                name: "Iron Bar",
-                minLevel: 15,
-                xp: 100,
-                requires: [
-                    { name: "Iron Ore", amount: 6 },
-    
-                ]
-            },
-{
-                name: "Silver Bar",
-                minLevel: 25,
-                xp: 250,
-                requires: [
-                    { name: "Silver Ore", amount: 6 },
-                    { name: "Iron Ore", amount: 3 }
-                ]
-            },
-{
-                name: "Gold Bar",
-                minLevel: 35,
-                xp: 600,
-                requires: [
-                    { name: "Gold Ore", amount: 10 }
-                 ]
-             },
-              {
-                name: "Titanium Bar",
-                minLevel: 45,
-                xp: 950,
-                requires: [
-                    { name: "Titanium Ore", amount: 8 }
-                ]
-            },
-            // add the rest of EoP's forged items here
-        ],
-
-        Combat: [
-            { name: "Bat", minLevel: 1, xp: 20 },
-            // add the rest of EoP's mobs here
-        ]
-
-        // Combat fits the same simple shape as Woodcutting/Mining —
-        // no "requires" needed since killing a mob isn't a craft.
-    };
-
-
-    /*
-        CURRENT SKILL NAME
-
-        Tracks which skill is open right now, so the
-        Current Level field can re-filter the materials
-        list on every keystroke without needing to know
-        the skill name itself.
-    */
-
-    let currentSkillName = "";
-
-
-    /*
-        XP BOOST STATE
-
-        Only one boost can be active at a time (0, 0.25, or 0.5).
-        This does NOT touch currentXP or the XP-to-next-level
-        formula — it only boosts the XP a material gives, which
-        is used later to work out how many of it you still need.
-    */
-
-    let xpBoost = 0;
-
-
-    function setXPBoost(percentage, button) {
-
-        const allBoostButtons =
-            document.querySelectorAll(".bonus-button");
-
-        if (xpBoost === percentage) {
-
-            // clicking the active boost again turns it off
-            xpBoost = 0;
-            button.classList.remove("active-boost");
-
-        } else {
-
-            xpBoost = percentage;
-
-            allBoostButtons.forEach((btn) => {
-                btn.classList.remove("active-boost");
-            });
-
-            button.classList.add("active-boost");
-
-        }
-
-        // if a result is already on screen, refresh it right away
-        // instead of waiting for another tap on CALCULATE
-        const result =
-            document.getElementById("result");
-
-        if (result.classList.contains("show")) {
-            calculateXP();
-        }
-
-    }
-
-
-    /*
-        FILL MATERIALS
-        Populates the materials <select> for the given skill,
-        keeping only materials whose minLevel is at or below
-        the current level typed in the Current Level field.
-        Hides the whole section if the skill has no materials.
-    */
-
-    function fillMaterials(skill) {
-
-        currentSkillName = skill;
-
-        const section =
-            document.getElementById("materialsSection");
-
-        const select =
-            document.getElementById("material");
-
-        const label =
-            document.getElementById("materialLabel");
-
-        label.textContent =
-            (skill === "Combat") ? "Mob" : "Material";
-
-        const currentLevelValue =
-            Number(document.getElementById("currentLevel").value) || 0;
-
-        select.innerHTML =
-            '<option value="">None (optional)</option>';
-
-        if (materials[skill]) {
-
-            section.classList.add("show");
-
-            materials[skill].forEach((mat, index) => {
-
-                // skip materials above the player's current level
-                if (mat.minLevel > currentLevelValue) {
-                    return;
-                }
-
-                // skip materials whose XP hasn't been filled in yet
-                if (mat.xp == null) {
-                    return;
-                }
-
-                const option =
-                    document.createElement("option");
-
-                option.value = index;
-
-                option.textContent =
-                    mat.name;
-
-                select.appendChild(option);
-
-            });
-
-        } else {
-
-            section.classList.remove("show");
-
-        }
-
-    }
-
-
-    /*
-        RESET BOOST STATE
-        Called whenever a new skill is opened, so a boost
-        picked on one skill doesn't silently carry over.
-    */
-
-    function resetBoost() {
-
-        xpBoost = 0;
-
-        document
-            .querySelectorAll(".bonus-button")
-            .forEach((btn) => {
-                btn.classList.remove("active-boost");
-            });
-
-    }
-
-
-    /*
-        OPEN SKILL
-    */
-
-    function openSkill(skill) {
-
-        document
-            .getElementById("home")
-            .classList.remove("active");
-
-        document
-            .getElementById("calculator")
-            .classList.add("active");
-
-        document
-            .getElementById("skillTitle")
-            .textContent = skill;
-
-        fillMaterials(skill);
-
-        resetBoost();
-
-        document
-            .getElementById("result")
-            .classList.remove("show");
-
-    }
-
-
-    /*
-        CALCULATE XP
-    */
-
-    function calculateXP() {
-
-    const currentLevel =
-        Number(
-            document.getElementById("currentLevel").value
-        );
-
-    const targetLevel =
-        Number(
-            document.getElementById("targetLevel").value
-        );
-
-    const currentXPInput =
-        document.getElementById("currentXP").value;
-
-    const currentXP =
-        Number(currentXPInput);
-
-    const result =
-        document.getElementById("result");
-
-
-    /*
-        CHECK INPUTS
-    */
-
-    if (!currentLevel ||
-        !targetLevel ||
-        currentXPInput === "" ||
-        currentXP < 0) {
-
-        result.classList.add("show");
-
-        document.getElementById("targetXP").innerHTML =
-            '<span class="error">Please fill in all fields.</span>';
-
-        document.getElementById("remainingXP").textContent =
-            "-";
-
-        return;
-    }
-
-
-    if (currentLevel < 1 ||
-        currentLevel > 140 ||
-        targetLevel < 1 ||
-        targetLevel > 140) {
-
-        result.classList.add("show");
-
-        document.getElementById("targetXP").innerHTML =
-            '<span class="error">Levels must be between 1 and 140.</span>';
-
-        document.getElementById("remainingXP").textContent =
-            "-";
-
-        return;
-    }
-
-
-    if (targetLevel <= currentLevel) {
-
-        result.classList.add("show");
-
-        document.getElementById("targetXP").innerHTML =
-            '<span class="error">Target level must be higher than current level.</span>';
-
-        document.getElementById("remainingXP").textContent =
-            "-";
-
-        return;
-    }
-
-
-    /*
-        ADD XP FOR EVERY LEVEL
-
-        Example:
-        Level 1 → 19
-
-        1→2
-        2→3
-        3→4
-        ...
-        18→19
-    */
-
-    let totalXP = 0;
-
-    for (
-        let level = currentLevel;
-        level < targetLevel;
-        level++
-    ) {
-
-        totalXP += getXP(level);
-
-    }
-
-
-    /*
-        SUBTRACT XP THE PLAYER ALREADY HAS
-
-        This is the real XP gap to the target level.
-        The boost never changes this number — it only
-        changes how many materials are needed to cover it.
-    */
-
-    const remainingXP =
-        Math.max(0, totalXP - currentXP);
-
-
-    /*
-        SHOW RESULTS
-    */
-
-    document.getElementById("targetXP")
-        .textContent =
-        totalXP.toLocaleString("en-US");
-
-
-    /*
-        IF A MATERIAL IS SELECTED, ALSO SHOW
-        HOW MANY OF IT ARE NEEDED TO COVER
-        THE REMAINING XP.
-
-        The boost is applied here: it raises the XP each
-        material gives, so fewer of them are needed to
-        cover the same remainingXP. remainingXP itself
-        stays untouched.
-    */
-
-    const materialSelect =
-        document.getElementById("material");
-
-    const materialIndex =
-        materialSelect.value;
-
-    if (materialIndex !== "") {
-
-        const currentSkill =
-            document.getElementById("skillTitle").textContent;
-
-        const mat =
-            materials[currentSkill][materialIndex];
-
-        const boostedXP =
-            mat.xp * (1 + xpBoost);
-
-        const qtyNeeded =
-            Math.ceil(remainingXP / boostedXP);
-
-        document.getElementById("remainingXP").textContent =
-            remainingXP.toLocaleString("en-US") +
-            " (" + qtyNeeded.toLocaleString("en-US") + "x " + mat.name + ")";
-
-        const materialsNeededRow =
-            document.getElementById("materialsNeededRow");
-
-        // crafted items (Carving, Forge) show how much of each
-        // raw material that many crafts consume, in its own row
-        if (mat.requires) {
-
-            const rawLines = mat.requires.map((req) => {
-
-                const rawNeeded =
-                    qtyNeeded * req.amount;
-
-                return rawNeeded.toLocaleString("en-US") + "x " + req.name;
-
-            });
-
-            document.getElementById("materialsNeeded").textContent =
-                rawLines.join(", ");
-
-            materialsNeededRow.classList.add("show");
-
-        } else {
-
-            materialsNeededRow.classList.remove("show");
-
-        }
-
-        const producesRow =
-            document.getElementById("producesRow");
-
-        // if one crafting action yields more than one finished
-        // item (e.g. 1 log → 3 totems), show the real total
-        if (mat.yields) {
-
-            const totalProduced =
-                qtyNeeded * mat.yields;
-
-            document.getElementById("producesAmount").textContent =
-                totalProduced.toLocaleString("en-US") + "x " + mat.name;
-
-            producesRow.classList.add("show");
-
-        } else {
-
-            producesRow.classList.remove("show");
-
-        }
-
-    } else {
-
-        document.getElementById("remainingXP").textContent =
-            remainingXP.toLocaleString("en-US");
-
-        document
-            .getElementById("materialsNeededRow")
-            .classList.remove("show");
-
-        document
-            .getElementById("producesRow")
-            .classList.remove("show");
-
-    }
-
-
-    result.classList.add("show");
-
+// XP = floor(100 × 1.14^(level - 1))
+function getXP(level) {
+  return Math.floor(100 * Math.pow(1.14, level - 1));
 }
 
+function clampLevel(input) {
+  if (Number(input.value) > 140) {
+    input.value = 140;
+  }
+}
 
-    /*
-        BACK TO HOME
-    */
+/*
+  MATERIALS PER SKILL
+  Woodcutting/Mining/Combat: lista simples { name, minLevel, xp }.
+  Carving: itens crafted, com "requires" (matéria-prima) e "yields" opcional.
+  Forge tem duas listas:
+    - bars: barras, cada uma com "requires" apontando para minérios (Mining)
+    - equipment: armas/armaduras, com "requires" apontando para NOMES DE BARRAS
+  Na UI, primeiro escolhe-se a barra; o segundo <select> (forgeCraft) então
+  só mostra os equipamentos que usam aquela barra, filtrados por "requires".
+  Isso permite comparar craftar equipamento com barras já prontas
+  vs. forjar as barras do zero junto (ver calculateXP).
+*/
+const materials = {
+  Woodcutting: [
+    { name: "Birch", minLevel: 1, xp: 10 },
+    { name: "Maple", minLevel: 10, xp: 35 },
+    { name: "Oak", minLevel: 20, xp: 120 },
+    { name: "Cypress", minLevel: 30, xp: 325 },
+    { name: "Pine", minLevel: 40, xp: 575 },
+    { name: "Fir", minLevel: 50, xp: 875 }
+    // add the rest of EoP's woods here
+  ],
 
-    function goHome() {
-
-        document
-            .getElementById("calculator")
-            .classList.remove("active");
-
-        document
-            .getElementById("home")
-            .classList.add("active");
-
+  Carving: [
+    {
+      name: "Damage Totem", minLevel: 1, xp: 10, yields: 3,
+      requires: [{ name: "Birch Log", amount: 1 }]
     }
+    // add the rest of EoP's carved items here
+  ],
 
+  Mining: [
+    { name: "Copper Ore", minLevel: 1, xp: 10 },
+    { name: "Tin Ore", minLevel: 10, xp: 35 },
+    { name: "Iron Ore", minLevel: 20, xp: 120 },
+    { name: "Silver Ore", minLevel: 30, xp: 300 },
+    { name: "Gold Ore", minLevel: 40, xp: 550 },
+    { name: "Titanium Ore", minLevel: 50, xp: 750 }
+    // add the rest of EoP's ores here
+  ],
+
+  Forge: {
+    bars: [
+      { name: "Bronze Bar", minLevel: 1, xp: 30,
+        requires: [{ name: "Copper Ore", amount: 7 }, { name: "Tin Ore", amount: 2 }] },
+      { name: "Iron Bar", minLevel: 15, xp: 100,
+        requires: [{ name: "Iron Ore", amount: 6 }] },
+      { name: "Silver Bar", minLevel: 25, xp: 250,
+        requires: [{ name: "Silver Ore", amount: 6 }, { name: "Iron Ore", amount: 3 }] },
+      { name: "Gold Bar", minLevel: 35, xp: 600,
+        requires: [{ name: "Gold Ore", amount: 10 }] },
+      { name: "Titanium Bar", minLevel: 45, xp: 950,
+        requires: [{ name: "Titanium Ore", amount: 8 }] }
+      // add the rest of EoP's bars here
+    ],
+    equipment: [
+      { name: "Bronze Sword", minLevel: 1, xp: 50,
+        requires: [{ name: "Bronze Bar", amount: 3 }] }
+      // add the rest of EoP's weapons/armor here
+    ]
+  },
+
+  Combat: [
+    { name: "Bat", minLevel: 1, xp: 20 }
+    // add the rest of EoP's mobs here
+  ]
+};
+
+// nome da barra -> objeto da barra, usado para achar o XP/ores de cada barra
+// a partir do "requires" de um item de equipamento
+const forgeLookup = {};
+materials.Forge.bars.forEach((bar) => {
+  forgeLookup[bar.name] = bar;
+});
+
+let currentSkillName = "";
+let xpBoost = 0;
+
+function setXPBoost(percentage, button) {
+  const allBoostButtons = document.querySelectorAll(".bonus-button");
+  if (xpBoost === percentage) {
+    xpBoost = 0;
+    button.classList.remove("active-boost");
+  } else {
+    xpBoost = percentage;
+    allBoostButtons.forEach((btn) => btn.classList.remove("active-boost"));
+    button.classList.add("active-boost");
+  }
+  const result = document.getElementById("result");
+  if (result.classList.contains("show")) {
+    calculateXP();
+  }
+}
+
+function fillMaterials(skill) {
+  currentSkillName = skill;
+  const section = document.getElementById("materialsSection");
+  const select = document.getElementById("material");
+  const label = document.getElementById("materialLabel");
+  label.textContent = (skill === "Combat") ? "Mob" : (skill === "Forge") ? "Bar" : "Material";
+
+  const currentLevelValue = Number(document.getElementById("currentLevel").value) || 0;
+  select.innerHTML = '<option value="">None (optional)</option>';
+
+  const list = (skill === "Forge") ? materials.Forge.bars : materials[skill];
+
+  if (list) {
+    section.classList.add("show");
+    list.forEach((mat, index) => {
+      if (mat.minLevel > currentLevelValue) return;
+      if (mat.xp == null) return;
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = mat.name;
+      select.appendChild(option);
+    });
+  } else {
+    section.classList.remove("show");
+  }
+
+  if (skill === "Forge") {
+    fillForgeCrafts();
+  } else {
+    document.getElementById("forgeCraftSection").classList.remove("show");
+  }
+}
+
+function onMaterialChange() {
+  if (currentSkillName === "Forge") {
+    fillForgeCrafts();
+  }
+  if (document.getElementById("result").classList.contains("show")) {
+    calculateXP();
+  }
+}
+
+function onForgeCraftChange() {
+  if (document.getElementById("result").classList.contains("show")) {
+    calculateXP();
+  }
+}
+
+// Mostra, no segundo <select>, só os equipamentos cujo "requires"
+// inclui a barra escolhida no primeiro <select>.
+function fillForgeCrafts() {
+  const section = document.getElementById("forgeCraftSection");
+  const select = document.getElementById("forgeCraft");
+  select.innerHTML = '<option value="">None (just the bar)</option>';
+
+  const barIndex = document.getElementById("material").value;
+  if (barIndex === "") {
+    section.classList.remove("show");
+    return;
+  }
+
+  const bar = materials.Forge.bars[Number(barIndex)];
+  const currentLevelValue = Number(document.getElementById("currentLevel").value) || 0;
+
+  materials.Forge.equipment.forEach((item, index) => {
+    if (item.minLevel > currentLevelValue) return;
+    if (item.xp == null) return;
+    const usesThisBar = item.requires && item.requires.some((req) => req.name === bar.name);
+    if (!usesThisBar) return;
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = item.name;
+    select.appendChild(option);
+  });
+
+  section.classList.add("show");
+}
+
+function resetBoost() {
+  xpBoost = 0;
+  document.querySelectorAll(".bonus-button").forEach((btn) => btn.classList.remove("active-boost"));
+}
+
+function openSkill(skill) {
+  document.getElementById("home").classList.remove("active");
+  document.getElementById("calculator").classList.add("active");
+  document.getElementById("skillTitle").textContent = skill;
+  fillMaterials(skill);
+  resetBoost();
+  document.getElementById("result").classList.remove("show");
+}
+
+// Resolve o item a calcular. Em Forge, se um craft foi escolhido no
+// segundo <select>, ele manda (é o que define o XP e as barras/ores
+// necessárias); senão, usa a própria barra escolhida no primeiro <select>.
+function resolveSelectedMaterial(skill, value) {
+  if (skill === "Forge") {
+    const craftValue = document.getElementById("forgeCraft").value;
+    if (craftValue !== "") {
+      return materials.Forge.equipment[Number(craftValue)];
+    }
+    return materials.Forge.bars[Number(value)];
+  }
+  return materials[skill][Number(value)];
+}
+
+function calculateXP() {
+  const currentLevel = Number(document.getElementById("currentLevel").value);
+  const targetLevel = Number(document.getElementById("targetLevel").value);
+  const currentXPInput = document.getElementById("currentXP").value;
+  const currentXP = Number(currentXPInput);
+  const result = document.getElementById("result");
+
+  if (!currentLevel || !targetLevel || currentXPInput === "" || currentXP < 0) {
+    result.classList.add("show");
+    document.getElementById("targetXP").innerHTML = '<span class="error">Please fill in all fields.</span>';
+    document.getElementById("remainingXP").textContent = "-";
+    return;
+  }
+  if (currentLevel < 1 || currentLevel > 140 || targetLevel < 1 || targetLevel > 140) {
+    result.classList.add("show");
+    document.getElementById("targetXP").innerHTML = '<span class="error">Levels must be between 1 and 140.</span>';
+    document.getElementById("remainingXP").textContent = "-";
+    return;
+  }
+  if (targetLevel <= currentLevel) {
+    result.classList.add("show");
+    document.getElementById("targetXP").innerHTML = '<span class="error">Target level must be higher than current level.</span>';
+    document.getElementById("remainingXP").textContent = "-";
+    return;
+  }
+
+  let totalXP = 0;
+  for (let level = currentLevel; level < targetLevel; level++) {
+    totalXP += getXP(level);
+  }
+  const remainingXP = Math.max(0, totalXP - currentXP);
+  document.getElementById("targetXP").textContent = totalXP.toLocaleString("en-US");
+
+  const materialsNeededRow = document.getElementById("materialsNeededRow");
+  const producesRow = document.getElementById("producesRow");
+  const forgeCombinedRow = document.getElementById("forgeCombinedRow");
+  const rawValue = document.getElementById("material").value;
+
+  if (rawValue === "") {
+    document.getElementById("remainingXP").textContent = remainingXP.toLocaleString("en-US");
+    materialsNeededRow.classList.remove("show");
+    producesRow.classList.remove("show");
+    forgeCombinedRow.classList.remove("show");
+    result.classList.add("show");
+    return;
+  }
+
+  // rawValue não-vazio aqui já é sempre um índice de barra (Forge) ou de
+  // item normal — o craft (se houver) é lido à parte via forgeCraft.value
+
+  const mat = resolveSelectedMaterial(currentSkillName, rawValue);
+  const boostedXP = mat.xp * (1 + xpBoost);
+  const qtyNeeded = Math.ceil(remainingXP / boostedXP);
+
+  document.getElementById("remainingXP").textContent =
+    remainingXP.toLocaleString("en-US") + " (" + qtyNeeded.toLocaleString("en-US") + "x " + mat.name + ")";
+
+  // Matéria-prima direta (ex.: barra -> minério, equipamento -> barra)
+  if (mat.requires) {
+    const rawLines = mat.requires.map((req) => {
+      const rawNeeded = qtyNeeded * req.amount;
+      return rawNeeded.toLocaleString("en-US") + "x " + req.name;
+    });
+    document.getElementById("materialsNeeded").textContent = rawLines.join(", ");
+    materialsNeededRow.classList.add("show");
+  } else {
+    materialsNeededRow.classList.remove("show");
+  }
+
+  if (mat.yields) {
+    const totalProduced = qtyNeeded * mat.yields;
+    document.getElementById("producesAmount").textContent = totalProduced.toLocaleString("en-US") + "x " + mat.name;
+    producesRow.classList.add("show");
+  } else {
+    producesRow.classList.remove("show");
+  }
+
+  // Só para equipamentos de Forge: quantas peças + barras seriam
+  // necessárias se você forjar as barras do zero (em vez de já tê-las),
+  // já que cada barra forjada também rende XP de Forge.
+  const forgeCraftValue = (currentSkillName === "Forge") ? document.getElementById("forgeCraft").value : "";
+
+  if (currentSkillName === "Forge" && forgeCraftValue !== "" && mat.requires) {
+    const barsXPPerCraft = mat.requires.reduce((sum, req) => {
+      const bar = forgeLookup[req.name];
+      return sum + (bar ? bar.xp * req.amount : 0);
+    }, 0);
+    const combinedXPPerCraft = (mat.xp + barsXPPerCraft) * (1 + xpBoost);
+    const qtyCombined = Math.ceil(remainingXP / combinedXPPerCraft);
+
+    const lines = [mat.name + ": " + qtyCombined.toLocaleString("en-US")];
+
+    const oreTotals = {};
+    mat.requires.forEach((req) => {
+      const bar = forgeLookup[req.name];
+      const barsNeeded = qtyCombined * req.amount;
+      lines.push(req.name + ": " + barsNeeded.toLocaleString("en-US"));
+      if (bar && bar.requires) {
+        bar.requires.forEach((oreReq) => {
+          const oreNeeded = barsNeeded * oreReq.amount;
+          oreTotals[oreReq.name] = (oreTotals[oreReq.name] || 0) + oreNeeded;
+        });
+      }
+    });
+    Object.keys(oreTotals).forEach((name) => {
+      lines.push(name + ": " + oreTotals[name].toLocaleString("en-US"));
+    });
+
+    document.getElementById("forgeCombinedList").innerHTML = lines.join("<br>");
+    forgeCombinedRow.classList.add("show");
+  } else {
+    forgeCombinedRow.classList.remove("show");
+  }
+
+  result.classList.add("show");
+}
+
+function goHome() {
+  document.getElementById("calculator").classList.remove("active");
+  document.getElementById("home").classList.add("active");
+}
 </script>
-
 </body>
 </html>
