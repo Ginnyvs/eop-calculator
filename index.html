@@ -461,7 +461,11 @@
 
         Mining: [
             { name: "Copper Ore", minLevel: 1, xp: 10 },
-            { name: "Tin Ore", minLevel: 10, xp: 35 }
+            { name: "Tin Ore", minLevel: 10, xp: 35 },
+            { name: "Iron Ore", minLevel: 20, xp: 120 },
+            { name: "Silver Ore", minLevel: 30, xp: 300 },
+            { name: "Gold Ore", minLevel: 40, xp 550 },
+            { name: "Titanium Ore", minLevel: 50, xp: 750 }
             // add the rest of EoP's ores here
         ],
 
@@ -474,7 +478,39 @@
                     { name: "Copper Ore", amount: 7 },
                     { name: "Tin Ore", amount: 2 }
                 ]
-            }
+            },
+{
+                name: "Iron Bar",
+                minLevel: 15,
+                xp: 100,
+                requires: [
+                    { name: "Iron Ore", amount: 6 },
+    
+                ]
+            },
+{
+                name: "Silver Bar",
+                minLevel: 25,
+                xp: 250,
+                requires: [
+                    { name: "Silver Ore", amount: 6 },
+                    { name: "Iron Ore", amount: 3 }
+                ]
+            },
+{
+                name: "Gold Bar",
+                minLevel: 35,
+                xp: 600,
+                requires: [
+                    { name: "Gold Ore", amount: 10 },
+              {
+                name: "Titanium Bar",
+                minLevel: 45,
+                xp: 950,
+                requires: [
+                    { name: "Titanium Ore", amount: 8 }
+                ]
+            },
             // add the rest of EoP's forged items here
         ],
 
