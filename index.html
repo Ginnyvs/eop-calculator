@@ -386,7 +386,8 @@ requires: [{ name: "Cypress Log", amount: 1}]
       { name: "Gold Bar", minLevel: 35, xp: 600,
         requires: [{ name: "Gold Ore", amount: 10 }] },
       { name: "Titanium Bar", minLevel: 45, xp: 950,
-        requires: [{ name: "Titanium Ore", amount: 8 }] }
+        requires: [{ name: "Titanium Ore", amount: 8 }] },
+{ name: "Null Bar", minLevel: 60, dropOnly: true }
       // add the rest of EoP's bars here
     ],
     equipment: [
@@ -542,7 +543,7 @@ function fillMaterials(skill) {
     section.classList.add("show");
     list.forEach((mat, index) => {
       if (skill !== "Combat" && mat.minLevel > currentLevelValue) return;
-      if (mat.xp == null) return;
+      if (mat.xp == null && !mat.dropOnly) return;
       const option = document.createElement("option");
       option.value = index;
       option.textContent = mat.name;
