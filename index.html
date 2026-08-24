@@ -240,13 +240,13 @@ button {
         <span class="skill-icon">🌲</span><span class="skill-name">Woodcutting</span>
       </button>
       <button class="skill-button" onclick="openSkill('Carving')">
-        <span class="skill-icon">🪵</span><span class="skill-name">Carving</span>
+        <span class="skill-icon">🪵</span><span class="skill-name">Totem Carving</span>
       </button>
       <button class="skill-button" onclick="openSkill('Mining')">
         <span class="skill-icon">⛏️</span><span class="skill-name">Mining</span>
       </button>
       <button class="skill-button" onclick="openSkill('Forge')">
-        <span class="skill-icon">🔥</span><span class="skill-name">Forge</span>
+        <span class="skill-icon">🔥</span><span class="skill-name">Forging</span>
       </button>
       <button class="skill-button" onclick="openSkill('Combat')">
         <span class="skill-icon">⚔️</span><span class="skill-name">Combat</span>
@@ -279,14 +279,12 @@ button {
         <button type="button" class="bonus-button" onclick="setXPBoost(0.5, this)">⭐ +50% XP</button>
       </div>
 
-      <!-- Só aparece para skills com lista em "materials" -->
       <div id="materialsSection" class="materials-section">
         <label for="material" id="materialLabel">Material</label>
         <select id="material" onchange="onMaterialChange()">
           <option value="">None (optional)</option>
         </select>
 
-        <!-- Só para Forge: crafts que usam a barra escolhida acima -->
         <div id="forgeCraftSection" class="materials-section">
           <label for="forgeCraft">Equipment</label>
           <select id="forgeCraft" onchange="onForgeCraftChange()">
@@ -406,6 +404,12 @@ materials.Forge.bars.forEach((bar) => {
   forgeLookup[bar.name] = bar;
 });
 
+// nomes internos das skills (usados como chave em "materials") -> nome exibido
+const skillDisplayNames = {
+  Carving: "Totem Carving",
+  Forge: "Forging"
+};
+
 let currentSkillName = "";
 let xpBoost = 0;
 
@@ -430,7 +434,14 @@ function fillMaterials(skill) {
   const section = document.getElementById("materialsSection");
   const select = document.getElementById("material");
   const label = document.getElementById("materialLabel");
-  label.textContent = (skill === "Combat") ? "Mob" : (skill === "Forge") ? "Bar" : "Material";
+  const labels = {
+    Combat: "Mob",
+    Forge: "Bar",
+    Woodcutting: "Tree",
+    Mining: "Ore",
+    Carving: "Logs"
+  };
+  label.textContent = labels[skill] || "Material";
 
   const currentLevelValue = Number(document.getElementById("currentLevel").value) || 0;
   select.innerHTML = '<option value="">None (optional)</option>';
@@ -511,7 +522,7 @@ function resetBoost() {
 function openSkill(skill) {
   document.getElementById("home").classList.remove("active");
   document.getElementById("calculator").classList.add("active");
-  document.getElementById("skillTitle").textContent = skill;
+  document.getElementById("skillTitle").textContent = skillDisplayNames[skill] || skill;
   fillMaterials(skill);
   resetBoost();
   document.getElementById("result").classList.remove("show");
@@ -577,9 +588,6 @@ function calculateXP() {
     result.classList.add("show");
     return;
   }
-
-  // rawValue não-vazio aqui já é sempre um índice de barra (Forge) ou de
-  // item normal — o craft (se houver) é lido à parte via forgeCraft.value
 
   const mat = resolveSelectedMaterial(currentSkillName, rawValue);
   const boostedXP = mat.xp * (1 + xpBoost);
