@@ -312,7 +312,7 @@
             -->
             <div id="materialsSection" class="materials-section">
 
-                <label for="material">
+                <label for="material" id="materialLabel">
                     Material
                 </label>
 
@@ -476,9 +476,15 @@
                 ]
             }
             // add the rest of EoP's forged items here
+        ],
+
+        Combat: [
+            { name: "Bat", minLevel: 1, xp: 20 }
+            // add the rest of EoP's mobs here
         ]
 
-        // Combat: its own structure comes later
+        // Combat fits the same simple shape as Woodcutting/Mining —
+        // no "requires" needed since killing a mob isn't a craft.
     };
 
 
@@ -558,6 +564,12 @@
 
         const select =
             document.getElementById("material");
+
+        const label =
+            document.getElementById("materialLabel");
+
+        label.textContent =
+            (skill === "Combat") ? "Mob" : "Material";
 
         const currentLevelValue =
             Number(document.getElementById("currentLevel").value) || 0;
@@ -841,17 +853,4 @@
             document.getElementById("producesRow");
 
         // if one crafting action yields more than one finished
-        // item (e.g. 1 log → 3 totems), show the real total
-        if (mat.yields) {
-
-            const totalProduced =
-                qtyNeeded * mat.yields;
-
-            document.getElementById("producesAmount").textContent =
-                totalProduced.toLocaleString("en-US") + "x " + mat.name;
-
-            producesRow.classList.add("show");
-
-        } else {
-
-            producesRow.classList.remove("show");
+        // item (e.g. 1 log
