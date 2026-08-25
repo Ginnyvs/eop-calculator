@@ -24,7 +24,9 @@
 }
 body {
   margin: 0;
-  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
   font-family: Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
@@ -290,6 +292,11 @@ button {
           <select id="forgeCraft" onchange="onForgeCraftChange()">
             <option value="">None (just the bar)</option>
           </select>
+
+          <label style="display: flex; align-items: center; gap: 8px; text-transform: none; font-weight: normal; margin-top: 8px;">
+            <input type="checkbox" id="equipmentOnly" onchange="onEquipmentOnlyChange()" style="width: auto;">
+            Equipment Only (I already have the bars)
+          </label>
         </div>
       </div>
 
@@ -566,6 +573,12 @@ function fillMaterials(skill) {
   }
 }
 
+function onEquipmentOnlyChange() {
+  if (document.getElementById("result").classList.contains("show")) {
+    calculateXP();
+  }
+}
+
 function onMaterialChange() {
   if (currentSkillName === "Forge") {
     fillForgeCrafts();
@@ -616,13 +629,23 @@ function resetBoost() {
   document.querySelectorAll(".bonus-button").forEach((btn) => btn.classList.remove("active-boost"));
 }
 
+// Limpa tudo que a pessoa preencheu na skill anterior, pra não vazar
+// nível/XP/opções de um cálculo pro próximo.
+function resetForm() {
+  document.getElementById("currentLevel").value = "";
+  document.getElementById("targetLevel").value = "";
+  document.getElementById("currentXP").value = "0";
+  document.getElementById("equipmentOnly").checked = false;
+  resetBoost();
+  document.getElementById("result").classList.remove("show");
+}
+
 function openSkill(skill) {
   document.getElementById("home").classList.remove("active");
   document.getElementById("calculator").classList.add("active");
   document.getElementById("skillTitle").textContent = skillDisplayNames[skill] || skill;
+  resetForm();
   fillMaterials(skill);
-  resetBoost();
-  document.getElementById("result").classList.remove("show");
 }
 
 // Resolve o item a calcular. Em Forge, se um craft foi escolhido no
@@ -668,8 +691,8 @@ function calculateXP() {
   let totalXP = 0;
   for (let level = currentLevel; level < targetLevel; level++) {
     totalXP += getXP(level);
-  }
-  const remainingXP = Math.max(0, totalXP - currentXP);
+}
+const remainingXP = Math.max(0, totalXP - currentXP);
   document.getElementById("targetXP").textContent = totalXP.toLocaleString("en-US");
 
   const materialsNeededRow = document.getElementById("materialsNeededRow");
@@ -687,13 +710,30 @@ function calculateXP() {
   }
 
   const mat = resolveSelectedMaterial(currentSkillName, rawValue);
-  const boostedXP = mat.xp * (1 + xpBoost);
+  const equipmentOnlyChecked = (currentSkillName === "Forge") && document.getElementById("equipmentOnly").checked;
+  const forgeCraftValue = (currentSkillName === "Forge") ? document.getElementById("forgeCraft").value : "";
+  const isForgeCraft = currentSkillName === "Forge" && forgeCraftValue !== "" && mat.requires;
+
+  // Se for um equipamento de Forge e o modo não for "Equipment Only",
+  // cada craft rende o XP do equipamento + o XP de smeltar as barras
+  // usadas nele (já que você forjaria as barras do zero também).
+  let barsXPPerCraft = 0;
+  if (isForgeCraft) {
+    barsXPPerCraft = mat.requires.reduce((sum, req) => {
+      const bar = forgeLookup[req.name];
+      return sum + (bar ? bar.xp * req.amount : 0);
+    }, 0);
+  }
+const useCombinedXP = isForgeCraft && !equipmentOnlyChecked;
+  const boostedXP = (mat.xp + (useCombinedXP ? barsXPPerCraft : 0)) * (1 + xpBoost);
   const qtyNeeded = Math.ceil(remainingXP / boostedXP);
 
   document.getElementById("remainingXP").textContent =
     remainingXP.toLocaleString("en-US") + " (" + qtyNeeded.toLocaleString("en-US") + "x " + mat.name + ")";
 
-  // Matéria-prima direta (ex.: barra -> minério, equipamento -> barra)
+  // Matéria-prima direta (ex.: barra -> minério, equipamento -> barra).
+  // Aparece nos dois modos: mesmo em "Equipment Only" é útil saber
+  // quantas barras aquela quantidade de equipamentos consome.
   if (mat.requires) {
     const rawLines = mat.requires.map((req) => {
       const rawNeeded = qtyNeeded * req.amount;
@@ -713,25 +753,15 @@ function calculateXP() {
     producesRow.classList.remove("show");
   }
 
-  // Só para equipamentos de Forge: quantas peças + barras seriam
-  // necessárias se você forjar as barras do zero (em vez de já tê-las),
-  // já que cada barra forjada também rende XP de Forge.
-  const forgeCraftValue = (currentSkillName === "Forge") ? document.getElementById("forgeCraft").value : "";
-
-  if (currentSkillName === "Forge" && forgeCraftValue !== "" && mat.requires) {
-    const barsXPPerCraft = mat.requires.reduce((sum, req) => {
-      const bar = forgeLookup[req.name];
-      return sum + (bar ? bar.xp * req.amount : 0);
-    }, 0);
-    const combinedXPPerCraft = (mat.xp + barsXPPerCraft) * (1 + xpBoost);
-    const qtyCombined = Math.ceil(remainingXP / combinedXPPerCraft);
-
-    const lines = [mat.name + ": " + qtyCombined.toLocaleString("en-US")];
+  // Detalhamento até os minérios: só faz sentido quando as barras
+  // também estão sendo forjadas do zero (modo combinado).
+  if (useCombinedXP) {
+    const lines = [mat.name + ": " + qtyNeeded.toLocaleString("en-US")];
 
     const oreTotals = {};
     mat.requires.forEach((req) => {
       const bar = forgeLookup[req.name];
-      const barsNeeded = qtyCombined * req.amount;
+      const barsNeeded = qtyNeeded * req.amount;
       lines.push(req.name + ": " + barsNeeded.toLocaleString("en-US"));
       if (bar && bar.requires) {
         bar.requires.forEach((oreReq) => {
@@ -739,7 +769,7 @@ function calculateXP() {
           oreTotals[oreReq.name] = (oreTotals[oreReq.name] || 0) + oreNeeded;
         });
       }
-    });
+});
     Object.keys(oreTotals).forEach((name) => {
       lines.push(name + ": " + oreTotals[name].toLocaleString("en-US"));
     });
