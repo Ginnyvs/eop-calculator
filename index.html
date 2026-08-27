@@ -545,7 +545,7 @@ function fillMaterials(skill) {
   label.textContent = labels[skill] || "Material";
 
   const currentLevelValue = Number(document.getElementById("currentLevel").value) || 0;
-  select.innerHTML = '<option value="">None</option>';
+  select.innerHTML = '<option value="">None (optional)</option>';
 
   const list = (skill === "Forge") ? materials.Forge.bars : materials[skill];
 
