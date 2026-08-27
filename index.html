@@ -349,26 +349,23 @@ const materials = {
   ],
 
   Carving: [
-    {
-      name: "Damage Totem", minLevel: 1, xp: 10, yields: 3,
+    {      name: "Damage Totem", minLevel: 1, xp: 10, yields: 3,
       requires: [{ name: "Birch Log", amount: 1 }]
     },
-{
- name: "Critical Totem", minLevel: 10, xp: 35, yields: 3,
+{ name: "Critical Totem", minLevel: 10, xp: 35, yields: 3,
 requires: [{ name: "Maple Log", amount: 1}]
 },
-{ 
- name: "Experience Totem", minLevel: 20, xp:120, yields: 3,
+{  name: "Experience Totem", minLevel: 20, xp:120, yields: 3,
 requires: [{ name: "Oak Log", amount: 1 }]
 },
-{
- name: "Evasion Totem", minLevel: 30, xp: 350,yields: 3,
+{ name: "Evasion Totem", minLevel: 30, xp: 350,yields: 3,
 requires: [{ name: "Cypress Log", amount: 1}]
 },
-{
- name: "Earth Totem", minLevel: 40, xp: 575, yields: 3,
+{name: "Earth Totem", minLevel: 40, xp: 575, yields: 3,
  requires: [{ name: "Pine Log", amount: 1}]
 }
+{name: "Light Totem", minLevel: 50, xp: 1100,
+requires: [{name: "For Log", amount: 1}]}
     // add the rest of EoP's carved items here
   ],
 
@@ -548,7 +545,7 @@ function fillMaterials(skill) {
   label.textContent = labels[skill] || "Material";
 
   const currentLevelValue = Number(document.getElementById("currentLevel").value) || 0;
-  select.innerHTML = '<option value="">None (optional)</option>';
+  select.innerHTML = '<option value="">None</option>';
 
   const list = (skill === "Forge") ? materials.Forge.bars : materials[skill];
 
