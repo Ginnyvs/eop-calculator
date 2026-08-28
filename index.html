@@ -162,8 +162,11 @@ h2 {
   gap: 8px;
   padding: 18px 8px 14px;
   border: 1px solid var(--line);
-  background: linear-gradient(160deg, var(--panel-2), var(--panel));
-  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(36,27,16,0.32), rgba(27,20,12,0.32));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
   cursor: pointer;
   font-family: inherit;
   animation: riseIn .5s ease both;
@@ -173,7 +176,7 @@ h2 {
   position: absolute;
   inset: 4px;
   border: 1px solid var(--line-bright);
-  clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  border-radius: 10px;
   opacity: 0.55;
   pointer-events: none;
 }
@@ -194,6 +197,8 @@ h2 {
   margin: 0 auto;
 }
 .skill-icon {
+  position: relative;
+  overflow: hidden;
   width: 42px;
   height: 42px;
   display: flex;
@@ -203,7 +208,24 @@ h2 {
   font-size: 19px;
   background: radial-gradient(circle at 35% 30%, #2c2013, #150f09);
   border: 1px solid var(--gold-dim);
-  box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.5), 0 0 0 4px var(--void), 0 0 0 5px var(--line),
+    -1px 0 0 6px rgba(224, 90, 90, 0.16), 1px 0 0 6px rgba(90, 150, 224, 0.16), 0 1px 0 6px rgba(110, 224, 140, 0.14);
+}
+.skill-icon::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -30%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(120deg, transparent, rgba(242, 198, 109, 0.55), transparent);
+  transform: rotate(20deg);
+  animation: shimmerSweep 3.2s ease-in-out infinite;
+}
+@keyframes shimmerSweep {
+  0%   { left: -30%; }
+  45%  { left: 120%; }
+  100% { left: 120%; }
 }
 .skill-name {
   font-family: 'Cinzel', Georgia, serif;
@@ -242,9 +264,12 @@ h2 {
 
 .form-section {
   position: relative;
-  background: linear-gradient(160deg, var(--panel-2), var(--panel));
+  background: linear-gradient(160deg, rgba(36,27,16,0.32), rgba(27,20,12,0.32));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--line);
-  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35);
   padding: 18px;
 }
 .form-section::before {
@@ -252,7 +277,7 @@ h2 {
   position: absolute;
   inset: 5px;
   border: 1px solid var(--line-bright);
-  clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+  border-radius: 12px;
   opacity: 0.5;
   pointer-events: none;
 }
@@ -353,7 +378,7 @@ input:focus, select:focus {
   margin-top: 20px;
   padding: 13px;
   border: none;
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  border-radius: 10px;
   background: linear-gradient(180deg, var(--gold-bright), var(--gold));
   color: var(--void);
   font-family: 'Cinzel', Georgia, serif;
@@ -363,6 +388,7 @@ input:focus, select:focus {
   text-transform: uppercase;
   cursor: pointer;
   overflow: hidden;
+  box-shadow: 0 8px 20px rgba(201, 151, 63, 0.35);
 }
 .calculate-button:active { transform: scale(0.98); }
 
@@ -371,16 +397,19 @@ input:focus, select:focus {
   margin-top: 16px;
   padding: 16px 18px;
   position: relative;
-  background: linear-gradient(160deg, var(--panel-2), var(--panel));
+  background: linear-gradient(160deg, rgba(36,27,16,0.32), rgba(27,20,12,0.32));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--line);
-  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35);
 }
 .result::before {
   content: "";
   position: absolute;
   inset: 5px;
   border: 1px solid var(--line-bright);
-  clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+  border-radius: 12px;
   opacity: 0.5;
   pointer-events: none;
 }
@@ -427,7 +456,7 @@ input:focus, select:focus {
 
 @media (prefers-reduced-motion: reduce) {
   .embers { display: none; }
-  .screen.active, .skill-button, .result.show { animation: none; }
+  .screen.active, .skill-button, .result.show, .skill-icon::after { animation: none; }
 }
 </style>
 </head>
@@ -489,7 +518,7 @@ input:focus, select:focus {
 
       <div class="bonus-buttons">
         <button type="button" class="bonus-button" onclick="setXPBoost(0.5, this)">⭐ +50% XP</button>
-        <button type="button" id="totemBoostButton" class="bonus-button totem-button" style="display: none;" onclick="setXPBoost(0.1, this)">🪧 Exp Totem +10% XP</button>
+        <button type="button" id="totemBoostButton" class="bonus-button totem-button" style="display: none;" onclick="setXPBoost(0.1, this)"> Exp Totem +10% XP</button>
       </div>
 
       <div id="materialsSection" class="materials-section">
@@ -686,7 +715,8 @@ requires: [{ name: "Peridot", amount: 1},
 {name: "Titanium Bar", amount: 14}]},
     ]
   },
-Combat: [
+
+  Combat: [
   { name: "Bat", xp: 20 },
   { name: "Pawn", xp: 95 },
   { name: "Bandit", xp: 160 },
@@ -697,8 +727,7 @@ Combat: [
   { name: "Lizard", xp: 4500 }
 ]
 };
-
-const forgeLookup = {};
+  const forgeLookup = {};
 materials.Forge.bars.forEach((bar) => {
   forgeLookup[bar.name] = bar;
 });
@@ -725,8 +754,9 @@ function setXPBoost(percentage, button) {
   if (result.classList.contains("show")) {
     calculateXP();
   }
-  }
-  function fillMaterials(skill) {
+}
+
+function fillMaterials(skill) {
   currentSkillName = skill;
   const section = document.getElementById("materialsSection");
   const select = document.getElementById("material");
@@ -745,7 +775,7 @@ function setXPBoost(percentage, button) {
   const currentLevelValue = Number(document.getElementById("currentLevel").value) || 0;
   const noneLabels = { Woodcutting: "None", Carving: "None", Mining: "None" };
 select.innerHTML = '<option value="">' + (noneLabels[skill] || "None (optional)") + '</option>';
-  
+
   const list = (skill === "Forge") ? materials.Forge.bars : materials[skill];
 
   if (list) {
@@ -788,9 +818,9 @@ function onForgeCraftChange() {
   if (document.getElementById("result").classList.contains("show")) {
     calculateXP();
   }
-  }
+}
 
-  function fillForgeCrafts() {
+function fillForgeCrafts() {
   const section = document.getElementById("forgeCraftSection");
   const select = document.getElementById("forgeCraft");
   select.innerHTML = '<option value="">None (just the bar)</option>';
@@ -838,9 +868,9 @@ function openSkill(skill) {
   document.getElementById("skillTitle").textContent = skillDisplayNames[skill] || skill;
   resetForm();
   fillMaterials(skill);
-  }
+}
 
-  function resolveSelectedMaterial(skill, value) {
+function resolveSelectedMaterial(skill, value) {
   if (skill === "Forge") {
     const craftValue = document.getElementById("forgeCraft").value;
     if (craftValue !== "") {
@@ -939,7 +969,7 @@ const useCombinedXP = isForgeCraft && !equipmentOnlyChecked;
   if (useCombinedXP) {
     const lines = [mat.name + ": " + qtyNeeded.toLocaleString("en-US")];
 
-  const oreTotals = {};
+    const oreTotals = {};
     mat.requires.forEach((req) => {
       const bar = forgeLookup[req.name];
       const barsNeeded = qtyNeeded * req.amount;
