@@ -6,236 +6,444 @@
 <title>EoP Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Spectral:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0a0908;
-  --panel: #16130f;
-  --panel-border: #3a2f18;
-  --gold: #cfa348;
-  --gold-bright: #f0cf6c;
-  --gold-dim: #7a6329;
-  --text: #f1ead9;
-  --text-dim: #9c8f70;
-  --error: #ff6f61;
+  --void: #0b0906;
+  --void-2: #060403;
+  --panel: #1b140c;
+  --panel-2: #241b10;
+  --line: #4a3319;
+  --line-bright: #6d4c22;
+  --gold-dim: #8a6a34;
+  --gold: #c9973f;
+  --gold-bright: #f2c66d;
+  --jade: #3f9d72;
+  --jade-bright: #6fd6a1;
+  --crimson: #c0483a;
+  --ink: #f1e6cc;
+  --ink-dim: #a4906c;
 }
-* {
-  box-sizing: border-box;
-}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
 body {
   margin: 0;
   min-height: 100dvh;
   display: flex;
-  align-items: center;
-  font-family: Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  align-items: flex-start;
+  justify-content: center;
+  font-family: 'Spectral', Georgia, serif;
+  background:
+    radial-gradient(ellipse 120% 60% at 50% -10%, #271c0e 0%, transparent 60%),
+    linear-gradient(180deg, var(--void) 0%, var(--void-2) 100%);
+  color: var(--ink);
+  position: relative;
+  overflow-x: hidden;
 }
+
+::selection { background: var(--gold-dim); color: var(--void); }
+
+.embers {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.embers span {
+  position: absolute;
+  bottom: -10px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--gold-bright);
+  box-shadow: 0 0 6px 1px var(--gold);
+  opacity: 0;
+  animation: emberRise linear infinite;
+}
+.embers span:nth-child(1) { left: 8%;  animation-duration: 9s;  animation-delay: 0s; }
+.embers span:nth-child(2) { left: 22%; animation-duration: 12s; animation-delay: 2s; }
+.embers span:nth-child(3) { left: 38%; animation-duration: 10s; animation-delay: 4.5s; }
+.embers span:nth-child(4) { left: 58%; animation-duration: 13s; animation-delay: 1s; }
+.embers span:nth-child(5) { left: 76%; animation-duration: 9.5s; animation-delay: 3.5s; }
+.embers span:nth-child(6) { left: 90%; animation-duration: 11.5s; animation-delay: 5.5s; }
+@keyframes emberRise {
+  0%   { transform: translateY(0) translateX(0);     opacity: 0; }
+  10%  { opacity: .7; }
+  85%  { opacity: .25; }
+  100% { transform: translateY(-100vh) translateX(12px); opacity: 0; }
+}
+
 .container {
   width: 100%;
   max-width: 600px;
-  margin: auto;
-  padding: 16px 16px 24px;
+  margin: 0 auto;
+  padding: 28px 18px 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  text-align: center;
+  font-family: 'Spectral', serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin: 0 0 4px;
 }
 h1 {
   text-align: center;
   font-family: 'Cinzel', Georgia, serif;
-  font-size: 22px;
+  font-weight: 700;
+  font-size: 25px;
   letter-spacing: 0.5px;
   color: var(--gold-bright);
-  margin: 6px 0 0;
+  text-shadow: 0 0 18px rgba(242, 198, 109, 0.25);
+  margin: 0;
 }
 h2 {
   text-align: center;
-  font-size: 13px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin: 0 0 16px;
+  font-family: 'Spectral', serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  color: var(--ink-dim);
+  margin: 0 0 28px;
 }
 .crest-divider {
-  width: 70px;
-  height: 2px;
-  margin: 10px auto 12px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  width: 90px;
+  height: 1px;
+  margin: 14px auto 16px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), var(--gold-bright), var(--gold-dim), transparent);
+  position: relative;
 }
-.screen {
-  display: none;
+.crest-divider::before {
+  content: "◆";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 8px;
+  color: var(--gold-bright);
+  background: var(--void);
+  padding: 0 6px;
 }
+.crest-divider.small { width: 60px; margin: 10px auto 0; }
+
+.screen { display: none; }
 .screen.active {
   display: block;
+  animation: riseIn .5s ease both;
 }
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Home ---------- */
 .skills {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-top: 40px;
+  gap: 12px;
+  margin-top: 8px;
 }
 .skill-button {
-  aspect-ratio: 3;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  border: 1px solid var(--gold-dim);
-  border-radius: 12px;
-  background: var(--panel);
-  box-shadow: 0 0 10px rgba(207, 163, 72, 0.1);
+  gap: 8px;
+  padding: 18px 8px 14px;
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, var(--panel-2), var(--panel));
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
   cursor: pointer;
-  padding: 4px;
+  font-family: inherit;
+  animation: riseIn .5s ease both;
 }
+.skill-button::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--line-bright);
+  clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.skills .skill-button:nth-child(1) { animation-delay: .04s; }
+.skills .skill-button:nth-child(2) { animation-delay: .09s; }
+.skills .skill-button:nth-child(3) { animation-delay: .14s; }
+.skills .skill-button:nth-child(4) { animation-delay: .19s; }
+.skills .skill-button:nth-child(5) { animation-delay: .24s; }
 .skill-button:active {
   transform: scale(0.97);
-  border-color: var(--gold-bright);
-  box-shadow: 0 0 14px rgba(240, 207, 108, 0.3);
+}
+.skill-button:active .skill-icon {
+  box-shadow: 0 0 0 1px var(--gold-bright), 0 0 16px rgba(242, 198, 109, 0.45);
 }
 .skill-button:last-child {
   grid-column: 1 / -1;
-  width: 50%;
+  width: 55%;
   margin: 0 auto;
 }
 .skill-icon {
-  font-size: 20px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 19px;
+  background: radial-gradient(circle at 35% 30%, #2c2013, #150f09);
+  border: 1px solid var(--gold-dim);
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
 }
 .skill-name {
   font-family: 'Cinzel', Georgia, serif;
+  font-weight: 600;
   font-size: 11px;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--gold-bright);
   text-align: center;
 }
-.form-section {
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  padding: 12px;
-  border-radius: 10px;
+
+/* ---------- Calculator ---------- */
+.calc-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
 }
+.icon-back {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line-bright);
+  background: var(--panel);
+  color: var(--ink-dim);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-back:active { border-color: var(--gold); color: var(--gold-bright); }
+.calc-heading { flex: 1; }
+.calc-heading h1 { font-size: 20px; }
+
+.form-section {
+  position: relative;
+  background: linear-gradient(160deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  padding: 18px;
+}
+.form-section::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--line-bright);
+  clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 label {
   display: block;
-  margin: 8px 0 4px;
-  font-weight: bold;
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  margin: 14px 0 6px;
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--gold);
 }
-input,
-select {
+label:first-of-type { margin-top: 0; }
+
+input, select {
   width: 100%;
-  padding: 8px;
-  border-radius: 7px;
-  border: 1px solid var(--panel-border);
-  background: var(--bg);
-  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 3px;
+  border: 1px solid var(--line);
+  background: var(--void);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
 }
-input:focus,
-select:focus {
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%);
+  background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 32px;
+}
+input::placeholder { color: var(--ink-dim); font-family: 'Spectral', serif; font-style: italic; }
+input:focus, select:focus {
   outline: none;
   border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(201, 151, 63, 0.2);
 }
-button {
-  font-family: inherit;
-}
+
 .bonus-buttons {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
 }
 .bonus-button {
   flex: 1;
-  padding: 8px;
+  min-width: 120px;
+  padding: 9px 8px;
   border: 1px solid var(--gold-dim);
-  border-radius: 7px;
+  border-radius: 3px;
   background: transparent;
   color: var(--gold);
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
-}
-.bonus-button:active {
-  transform: scale(0.98);
-}
-.bonus-button.active-boost {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: #0a0908;
-}
-.materials-section {
-  display: none;
-  margin-top: 8px;
-}
-.materials-section.show {
-  display: block;
-}
-.materials-needed-row {
-  display: none;
-}
-.materials-needed-row.show {
-  display: block;
-}
-.calculate-button {
-  width: 100%;
-  margin-top: 14px;
-  padding: 11px;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
-  color: #0a0908;
-  font-size: 15px;
-  font-weight: bold;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.5px;
   cursor: pointer;
 }
-.calculate-button:active {
-  transform: scale(0.98);
+.bonus-button:active { transform: scale(0.98); }
+.bonus-button.active-boost {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--void);
+  box-shadow: 0 0 12px rgba(201, 151, 63, 0.4);
 }
-.back-button {
-  width: 100%;
-  margin-top: 8px;
-  padding: 9px;
-  border: 1px solid var(--panel-border);
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text-dim);
+.bonus-button.totem-button { border-color: var(--jade); color: var(--jade-bright); }
+.bonus-button.totem-button.active-boost {
+  background: var(--jade);
+  border-color: var(--jade);
+  color: var(--void);
+  box-shadow: 0 0 12px rgba(63, 157, 114, 0.45);
+}
+
+.materials-section { display: none; margin-top: 4px; }
+.materials-section.show { display: block; }
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-family: 'Spectral', serif;
   font-size: 13px;
-  cursor: pointer;
+  font-weight: normal;
+  text-transform: none;
+  color: var(--ink-dim);
+  letter-spacing: 0;
 }
+.checkbox-row input { width: auto; accent-color: var(--gold); }
+
+.calculate-button {
+  position: relative;
+  width: 100%;
+  margin-top: 20px;
+  padding: 13px;
+  border: none;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  color: var(--void);
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+}
+.calculate-button:active { transform: scale(0.98); }
+
 .result {
   display: none;
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 10px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
+  margin-top: 16px;
+  padding: 16px 18px;
+  position: relative;
+  background: linear-gradient(160deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
 }
-.result.show {
-  display: block;
+.result::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--line-bright);
+  clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+  opacity: 0.5;
+  pointer-events: none;
 }
+.result.show { display: block; animation: riseIn .4s ease both; }
 .result p {
-  margin: 6px 0;
-  font-size: 14px;
-  color: var(--text-dim);
+  margin: 0 0 10px;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 600;
 }
+.result p:last-child { margin-bottom: 0; }
 .result strong {
+  display: block;
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--gold-bright);
 }
+.result p.result-hero strong {
+  font-size: 24px;
+  font-weight: 600;
+  text-shadow: 0 0 16px rgba(242, 198, 109, 0.3);
+}
+.materials-needed-row { display: none; }
+.materials-needed-row.show { display: block; }
+#forgeCombinedList { font-family: 'JetBrains Mono', monospace; color: var(--gold-bright); }
+
 .error {
-  color: var(--error);
-  font-weight: bold;
+  display: block;
+  margin-top: 4px;
+  color: var(--crimson);
+  font-family: 'Spectral', serif;
+  font-style: italic;
+  font-weight: 600;
+  text-transform: none;
+  font-size: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .embers { display: none; }
+  .screen.active, .skill-button, .result.show { animation: none; }
 }
 </style>
 </head>
 <body>
+
+<div class="embers" aria-hidden="true">
+  <span></span><span></span><span></span><span></span><span></span><span></span>
+</div>
+
 <div class="container">
 
   <div id="home" class="screen active">
-    <h1> EoP Calculator</h1>
+    <div class="eyebrow">Empire of Praxia</div>
+    <h1>EoP Calculator</h1>
     <div class="crest-divider"></div>
-    <h2>Choose a skill</h2>
+    <h2>Choose your craft</h2>
     <div class="skills">
       <button class="skill-button" onclick="openSkill('Woodcutting')">
         <span class="skill-icon">🌲</span><span class="skill-name">Woodcutting</span>
@@ -256,8 +464,13 @@ button {
   </div>
 
   <div id="calculator" class="screen">
-    <h1 id="skillTitle">Skill</h1>
-    <div class="crest-divider"></div>
+    <div class="calc-topbar">
+      <button type="button" class="icon-back" onclick="goHome()" aria-label="Back">←</button>
+      <div class="calc-heading">
+        <h1 id="skillTitle">Skill</h1>
+      </div>
+    </div>
+    <div class="crest-divider small"></div>
 
     <div class="form-section">
       <label for="currentLevel">Current Level</label>
@@ -276,7 +489,7 @@ button {
 
       <div class="bonus-buttons">
         <button type="button" class="bonus-button" onclick="setXPBoost(0.5, this)">⭐ +50% XP</button>
-        <button type="button" id="totemBoostButton" class="bonus-button" style="display: none;" onclick="setXPBoost(0.1, this)"> Exp Totem +10% XP</button>
+        <button type="button" id="totemBoostButton" class="bonus-button totem-button" style="display: none;" onclick="setXPBoost(0.1, this)">🪧 Exp Totem +10% XP</button>
       </div>
 
       <div id="materialsSection" class="materials-section">
@@ -291,32 +504,30 @@ button {
             <option value="">None (just the bar)</option>
           </select>
 
-          <label style="display: flex; align-items: center; gap: 8px; text-transform: none; font-weight: normal; margin-top: 8px;">
-            <input type="checkbox" id="equipmentOnly" onchange="onEquipmentOnlyChange()" style="width: auto;">
+          <label class="checkbox-row">
+            <input type="checkbox" id="equipmentOnly" onchange="onEquipmentOnlyChange()">
             Equipment Only (I already have the bars)
           </label>
         </div>
       </div>
 
-      <button class="calculate-button" onclick="calculateXP()">CALCULATE</button>
+      <button class="calculate-button" onclick="calculateXP()">Calculate</button>
     </div>
 
     <div id="result" class="result">
-      <p>XP required for target level:<br><strong id="targetXP">-</strong></p>
-      <p>XP remaining:<br><strong id="remainingXP">-</strong></p>
+      <p>XP required for target level<strong id="targetXP">-</strong></p>
+      <p class="result-hero">XP remaining<strong id="remainingXP">-</strong></p>
       <p id="materialsNeededRow" class="materials-needed-row">
-        Material needed:<br><strong id="materialsNeeded">-</strong>
+        Material needed<strong id="materialsNeeded">-</strong>
       </p>
       <p id="producesRow" class="materials-needed-row">
-        Produces:<br><strong id="producesAmount">-</strong>
+        Produces<strong id="producesAmount">-</strong>
       </p>
       <div id="forgeCombinedRow" class="materials-needed-row">
-        <p style="margin-bottom: 6px;"><strong>Bars + Equipment</strong></p>
+        <p style="margin-bottom: 6px;">Bars + Equipment</p>
         <p id="forgeCombinedList" style="margin: 0;">-</p>
       </div>
     </div>
-
-    <button class="back-button" onclick="goHome()">← Back</button>
   </div>
 </div>
 
@@ -475,8 +686,7 @@ requires: [{ name: "Peridot", amount: 1},
 {name: "Titanium Bar", amount: 14}]},
     ]
   },
-
-  Combat: [
+Combat: [
   { name: "Bat", xp: 20 },
   { name: "Pawn", xp: 95 },
   { name: "Bandit", xp: 160 },
@@ -515,9 +725,8 @@ function setXPBoost(percentage, button) {
   if (result.classList.contains("show")) {
     calculateXP();
   }
-}
-
-function fillMaterials(skill) {
+  }
+  function fillMaterials(skill) {
   currentSkillName = skill;
   const section = document.getElementById("materialsSection");
   const select = document.getElementById("material");
@@ -536,7 +745,7 @@ function fillMaterials(skill) {
   const currentLevelValue = Number(document.getElementById("currentLevel").value) || 0;
   const noneLabels = { Woodcutting: "None", Carving: "None", Mining: "None" };
 select.innerHTML = '<option value="">' + (noneLabels[skill] || "None (optional)") + '</option>';
-
+  
   const list = (skill === "Forge") ? materials.Forge.bars : materials[skill];
 
   if (list) {
@@ -579,9 +788,9 @@ function onForgeCraftChange() {
   if (document.getElementById("result").classList.contains("show")) {
     calculateXP();
   }
-}
+  }
 
-function fillForgeCrafts() {
+  function fillForgeCrafts() {
   const section = document.getElementById("forgeCraftSection");
   const select = document.getElementById("forgeCraft");
   select.innerHTML = '<option value="">None (just the bar)</option>';
@@ -617,7 +826,7 @@ function resetBoost() {
 function resetForm() {
   document.getElementById("currentLevel").value = "";
   document.getElementById("targetLevel").value = "";
-  document.getElementById("currentXP").value = "0";
+  document.getElementById("currentXP").value = "";
   document.getElementById("equipmentOnly").checked = false;
   resetBoost();
   document.getElementById("result").classList.remove("show");
@@ -629,9 +838,9 @@ function openSkill(skill) {
   document.getElementById("skillTitle").textContent = skillDisplayNames[skill] || skill;
   resetForm();
   fillMaterials(skill);
-}
+  }
 
-function resolveSelectedMaterial(skill, value) {
+  function resolveSelectedMaterial(skill, value) {
   if (skill === "Forge") {
     const craftValue = document.getElementById("forgeCraft").value;
     if (craftValue !== "") {
@@ -730,7 +939,7 @@ const useCombinedXP = isForgeCraft && !equipmentOnlyChecked;
   if (useCombinedXP) {
     const lines = [mat.name + ": " + qtyNeeded.toLocaleString("en-US")];
 
-    const oreTotals = {};
+  const oreTotals = {};
     mat.requires.forEach((req) => {
       const bar = forgeLookup[req.name];
       const barsNeeded = qtyNeeded * req.amount;
@@ -762,4 +971,3 @@ function goHome() {
 </script>
 </body>
 </html>
-
