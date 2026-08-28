@@ -232,7 +232,6 @@ button {
 <body>
 <div class="container">
 
-  <!-- HOME -->
   <div id="home" class="screen active">
     <h1> EoP Calculator</h1>
     <div class="crest-divider"></div>
@@ -256,7 +255,6 @@ button {
     </div>
   </div>
 
-  <!-- CALCULATOR -->
   <div id="calculator" class="screen">
     <h1 id="skillTitle">Skill</h1>
     <div class="crest-divider"></div>
@@ -277,8 +275,8 @@ button {
         placeholder="Enter your current XP" value="0">
 
       <div class="bonus-buttons">
-        <button type="button" class="bonus-button" onclick="setXPBoost(0.25, this)">✨ +25% XP</button>
         <button type="button" class="bonus-button" onclick="setXPBoost(0.5, this)">⭐ +50% XP</button>
+        <button type="button" id="totemBoostButton" class="bonus-button" style="display: none;" onclick="setXPBoost(0.1, this)">🪧 Exp Totem +10% XP</button>
       </div>
 
       <div id="materialsSection" class="materials-section">
@@ -303,7 +301,6 @@ button {
       <button class="calculate-button" onclick="calculateXP()">CALCULATE</button>
     </div>
 
-    <!-- RESULT -->
     <div id="result" class="result">
       <p>XP required for target level:<br><strong id="targetXP">-</strong></p>
       <p>XP remaining:<br><strong id="remainingXP">-</strong></p>
@@ -313,7 +310,6 @@ button {
       <p id="producesRow" class="materials-needed-row">
         Produces:<br><strong id="producesAmount">-</strong>
       </p>
-      <!-- Só para Forge: comparação "craftar equipamento" vs "forjar tudo do zero" -->
       <div id="forgeCombinedRow" class="materials-needed-row">
         <p style="margin-bottom: 6px;"><strong>Bars + Equipment</strong></p>
         <p id="forgeCombinedList" style="margin: 0;">-</p>
@@ -325,7 +321,6 @@ button {
 </div>
 
 <script>
-// XP = floor(100 × 1.14^(level - 1))
 function getXP(level) {
   return Math.floor(100 * Math.pow(1.14, level - 1));
 }
@@ -345,7 +340,6 @@ const materials = {
     { name: "Cypress", minLevel: 30, xp: 350 },
     { name: "Pine", minLevel: 40, xp: 575 },
     { name: "Fir", minLevel: 50, xp: 875 }
-    // add the rest of EoP's woods here
   ],
 
   Carving: [
@@ -366,7 +360,6 @@ requires: [{ name: "Cypress Log", amount: 1}]
 },
 {name: "Light Totem", minLevel: 50, xp: 1100,
 requires: [{name: "Fir Log", amount: 1}]}
-    // add the rest of EoP's carved items here
   ],
 
   Mining: [
@@ -376,7 +369,6 @@ requires: [{name: "Fir Log", amount: 1}]}
     { name: "Silver Ore", minLevel: 30, xp: 300 },
     { name: "Gold Ore", minLevel: 40, xp: 550 },
     { name: "Titanium Ore", minLevel: 50, xp: 750 }
-    // add the rest of EoP's ores here
   ],
 
   Forge: {
@@ -392,7 +384,6 @@ requires: [{name: "Fir Log", amount: 1}]}
       { name: "Titanium Bar", minLevel: 45, xp: 950,
         requires: [{ name: "Titanium Ore", amount: 8 }] },
 { name: "Null Bar", minLevel: 60, dropOnly: true }
-      // add the rest of EoP's bars here
     ],
     equipment: [
  { name: "Bronze Ring", minLevel: 4, xp: 240,
@@ -482,7 +473,6 @@ requires: [{ name: "Peridot", amount: 1},
 {name: "Titanium Ring", minLevel: 60, xp: 0,
 requires: [{ name: "Peridot", amount: 1},
 {name: "Titanium Bar", amount: 14}]},
-      // add the rest of EoP's weapons/armor here
     ]
   },
 
@@ -498,14 +488,11 @@ requires: [{ name: "Peridot", amount: 1},
 ]
 };
 
-// nome da barra -> objeto da barra, usado para achar o XP/ores de cada barra
-// a partir do "requires" de um item de equipamento
 const forgeLookup = {};
 materials.Forge.bars.forEach((bar) => {
   forgeLookup[bar.name] = bar;
 });
 
-// nomes internos das skills (usados como chave em "materials") -> nome exibido
 const skillDisplayNames = {
   Carving: "Totem Carving",
   Forge: "Forging"
@@ -535,6 +522,8 @@ function fillMaterials(skill) {
   const section = document.getElementById("materialsSection");
   const select = document.getElementById("material");
   const label = document.getElementById("materialLabel");
+  const totemButton = document.getElementById("totemBoostButton");
+  totemButton.style.display = (skill === "Combat") ? "" : "none";
   const labels = {
     Combat: "Mob",
     Forge: "Bar",
@@ -592,8 +581,6 @@ function onForgeCraftChange() {
   }
 }
 
-// Mostra, no segundo <select>, só os equipamentos cujo "requires"
-// inclui a barra escolhida no primeiro <select>.
 function fillForgeCrafts() {
   const section = document.getElementById("forgeCraftSection");
   const select = document.getElementById("forgeCraft");
@@ -627,8 +614,6 @@ function resetBoost() {
   document.querySelectorAll(".bonus-button").forEach((btn) => btn.classList.remove("active-boost"));
 }
 
-// Limpa tudo que a pessoa preencheu na skill anterior, pra não vazar
-// nível/XP/opções de um cálculo pro próximo.
 function resetForm() {
   document.getElementById("currentLevel").value = "";
   document.getElementById("targetLevel").value = "";
@@ -646,9 +631,6 @@ function openSkill(skill) {
   fillMaterials(skill);
 }
 
-// Resolve o item a calcular. Em Forge, se um craft foi escolhido no
-// segundo <select>, ele manda (é o que define o XP e as barras/ores
-// necessárias); senão, usa a própria barra escolhida no primeiro <select>.
 function resolveSelectedMaterial(skill, value) {
   if (skill === "Forge") {
     const craftValue = document.getElementById("forgeCraft").value;
@@ -712,9 +694,6 @@ const remainingXP = Math.max(0, totalXP - currentXP);
   const forgeCraftValue = (currentSkillName === "Forge") ? document.getElementById("forgeCraft").value : "";
   const isForgeCraft = currentSkillName === "Forge" && forgeCraftValue !== "" && mat.requires;
 
-  // Se for um equipamento de Forge e o modo não for "Equipment Only",
-  // cada craft rende o XP do equipamento + o XP de smeltar as barras
-  // usadas nele (já que você forjaria as barras do zero também).
   let barsXPPerCraft = 0;
   if (isForgeCraft) {
     barsXPPerCraft = mat.requires.reduce((sum, req) => {
@@ -729,9 +708,6 @@ const useCombinedXP = isForgeCraft && !equipmentOnlyChecked;
   document.getElementById("remainingXP").textContent =
     remainingXP.toLocaleString("en-US") + " (" + qtyNeeded.toLocaleString("en-US") + "x " + mat.name + ")";
 
-  // Matéria-prima direta (ex.: barra -> minério, equipamento -> barra).
-  // Aparece nos dois modos: mesmo em "Equipment Only" é útil saber
-  // quantas barras aquela quantidade de equipamentos consome.
   if (mat.requires) {
     const rawLines = mat.requires.map((req) => {
       const rawNeeded = qtyNeeded * req.amount;
@@ -751,8 +727,6 @@ const useCombinedXP = isForgeCraft && !equipmentOnlyChecked;
     producesRow.classList.remove("show");
   }
 
-  // Detalhamento até os minérios: só faz sentido quando as barras
-  // também estão sendo forjadas do zero (modo combinado).
   if (useCombinedXP) {
     const lines = [mat.name + ": " + qtyNeeded.toLocaleString("en-US")];
 
@@ -788,3 +762,4 @@ function goHome() {
 </script>
 </body>
 </html>
+
