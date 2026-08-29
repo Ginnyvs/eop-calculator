@@ -493,6 +493,23 @@ input:focus, select:focus {
   .embers { display: none; }
   .screen.active, .skill-button, .result.show, .skill-icon::after, .calculate-button::after, .boost50-button, .totem-button { animation: none; }
 }
+
+.footer-credit {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 9px;
+  color: var(--ink-dim);
+  opacity: 0.4;
+}
+.footer-credit a {
+  color: inherit;
+  text-decoration: underline;
+}
+.credit-name {
+  color: var(--gold-dim);
+  font-style: italic;
+  }
+  
 </style>
 </head>
 <body>
@@ -525,6 +542,13 @@ input:focus, select:focus {
         <span class="skill-icon">⚔️</span><span class="skill-name">Combat</span>
       </button>
     </div>
+
+<div class="footer-credit">
+  check <a href="https://empireofpraxia.miraheze.org/wiki/Home_Page" target="_blank" rel="noopener">Wiki</a>
+  · Made by <span class="credit-name">Ginny</span>
+  · Thanks to <span class="credit-name">Poste</span> for the help
+</div>
+    
   </div>
 
   <div id="calculator" class="screen">
