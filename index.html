@@ -834,21 +834,21 @@ const skillDisplayNames = {
 let currentSkillName = "";
 let xpBoost = 0;
 
-function setXPBoost(percentage, button) {
-  const allBoostButtons = document.querySelectorAll(".bonus-button");
-  if (xpBoost === percentage) {
-    xpBoost = 0;
-    button.classList.remove("active-boost");
-  } else {
-    xpBoost = percentage;
-    allBoostButtons.forEach((btn) => btn.classList.remove("active-boost"));
-    button.classList.add("active-boost");
-  }
+ function setXPBoost(percentage, button) {
+  button.classList.toggle("active-boost");
+  if (!button.dataset.boost) button.dataset.boost = percentage;
+
+  xpBoost = 0;
+  document.querySelectorAll(".bonus-button.active-boost").forEach((btn) => {
+    xpBoost += parseFloat(btn.dataset.boost) || 0;
+  });
+
   const result = document.getElementById("result");
   if (result.classList.contains("show")) {
     calculateXP();
   }
-}
+ }
+
 
 function fillMaterials(skill) {
   currentSkillName = skill;
@@ -944,8 +944,10 @@ function fillForgeCrafts() {
 
 function resetBoost() {
   xpBoost = 0;
-  document.querySelectorAll(".bonus-button").forEach((btn) => btn.classList.remove("active-boost"));
-}
+  document.querySelectorAll(".bonus-button").forEach((btn) => {
+    btn.classList.remove("active-boost");
+  });
+  }
 
 function resetForm() {
   document.getElementById("currentLevel").value = "";
