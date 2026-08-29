@@ -357,7 +357,6 @@ input:focus, select:focus {
   100% { color: #e05a5a; }
 }
 .bonus-button.totem-button {
-  border-color: var(--gold);
   color: #f4f1e8;
   animation: whiteTextPulse 3s ease-in-out infinite;
 }
@@ -1127,22 +1126,10 @@ function goHome() {
       });
       panel.classList.add("open");
       trigger.classList.add("open");
-
-      function openPanel() {
-  document.querySelectorAll(".custom-select-panel.open").forEach((p) => {
-    if (p !== panel) p.classList.remove("open");
-  });
-  document.querySelectorAll(".custom-select-trigger.open").forEach((t) => {
-    if (t !== trigger) t.classList.remove("open");
-  });
-  panel.classList.add("open");
-  trigger.classList.add("open");
-  setTimeout(() => {
-    panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, 50);
-}   ← esse é o } que fecha a função openPanel inteira
+      setTimeout(() => {
+        panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }, 50);
     }
-
     function togglePanel() {
       if (panel.classList.contains("open")) {
         closePanel();
