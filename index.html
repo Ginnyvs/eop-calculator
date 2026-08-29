@@ -347,7 +347,24 @@ input:focus, select:focus {
   color: var(--void);
   box-shadow: 0 0 12px rgba(201, 151, 63, 0.4);
 }
-.bonus-button.totem-button { border-color: var(--jade); color: var(--jade-bright); }
+.bonus-button.boost50-button {
+  animation: rgbText 5s linear infinite;
+}
+@keyframes rgbText {
+  0%   { color: #e05a5a; }
+  33%  { color: #5a96e0; }
+  66%  { color: #6ee08c; }
+  100% { color: #e05a5a; }
+}
+.bonus-button.totem-button {
+  border-color: var(--jade);
+  color: #f4f1e8;
+  animation: whiteTextPulse 3s ease-in-out infinite;
+}
+@keyframes whiteTextPulse {
+  0%, 100% { text-shadow: 0 0 4px rgba(255, 255, 255, 0.25); }
+  50%      { text-shadow: 0 0 10px rgba(255, 255, 255, 0.85); }
+}
 .bonus-button.totem-button.active-boost {
   background: var(--jade);
   border-color: var(--jade);
@@ -377,10 +394,10 @@ input:focus, select:focus {
   width: 100%;
   margin-top: 20px;
   padding: 13px;
-  border: none;
+  border: 1px solid var(--gold);
   border-radius: 10px;
-  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
-  color: var(--void);
+  background: transparent;
+  color: var(--gold-bright);
   font-family: 'Cinzel', Georgia, serif;
   font-size: 14px;
   font-weight: 700;
@@ -388,7 +405,25 @@ input:focus, select:focus {
   text-transform: uppercase;
   cursor: pointer;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(201, 151, 63, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.calculate-button::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -30%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(120deg, transparent, rgba(242, 198, 109, 0.4), transparent);
+  transform: rotate(20deg);
+  animation: shimmerSweep 3s ease-in-out infinite;
+}
+.calc-diamond {
+  font-size: 8px;
+  color: var(--gold);
 }
 .calculate-button:active { transform: scale(0.98); }
 
@@ -456,7 +491,7 @@ input:focus, select:focus {
 
 @media (prefers-reduced-motion: reduce) {
   .embers { display: none; }
-  .screen.active, .skill-button, .result.show, .skill-icon::after { animation: none; }
+  .screen.active, .skill-button, .result.show, .skill-icon::after, .calculate-button::after, .boost50-button, .totem-button { animation: none; }
 }
 </style>
 </head>
@@ -517,7 +552,7 @@ input:focus, select:focus {
         placeholder="Enter your current XP" value="0">
 
       <div class="bonus-buttons">
-        <button type="button" class="bonus-button" onclick="setXPBoost(0.5, this)">⭐ +50% XP</button>
+        <button type="button" class="bonus-button boost50-button" onclick="setXPBoost(0.5, this)">⭐ +50% XP</button>
         <button type="button" id="totemBoostButton" class="bonus-button totem-button" style="display: none;" onclick="setXPBoost(0.1, this)"> Exp Totem +10% XP</button>
       </div>
 
@@ -540,7 +575,7 @@ input:focus, select:focus {
         </div>
       </div>
 
-      <button class="calculate-button" onclick="calculateXP()">Calculate</button>
+      <button class="calculate-button" onclick="calculateXP()"><span class="calc-diamond">◆</span>Calculate<span class="calc-diamond">◆</span></button>
     </div>
 
     <div id="result" class="result">
@@ -623,7 +658,7 @@ requires: [{name: "Fir Log", amount: 1}]}
         requires: [{ name: "Gold Ore", amount: 10 }] },
       { name: "Titanium Bar", minLevel: 45, xp: 950,
         requires: [{ name: "Titanium Ore", amount: 8 }] },
-],
+    ],
     equipment: [
  { name: "Bronze Ring", minLevel: 4, xp: 240,
 requires: [{ name: "Bronze Bar", amount: 8 }]
@@ -693,7 +728,7 @@ requires: [{ name: "Titanium Bar", amount: 18}]},
   { name: "Lizard", xp: 4500 }
 ]
 };
-  const forgeLookup = {};
+const forgeLookup = {};
 materials.Forge.bars.forEach((bar) => {
   forgeLookup[bar.name] = bar;
 });
@@ -742,7 +777,7 @@ function fillMaterials(skill) {
   const noneLabels = { Woodcutting: "None", Carving: "None", Mining: "None" };
 select.innerHTML = '<option value="">' + (noneLabels[skill] || "None (optional)") + '</option>';
 
-  const list = (skill === "Forge") ? materials.Forge.bars : materials[skill];
+const list = (skill === "Forge") ? materials.Forge.bars : materials[skill];
 
   if (list) {
     section.classList.add("show");
@@ -924,7 +959,7 @@ const useCombinedXP = isForgeCraft && !equipmentOnlyChecked;
     materialsNeededRow.classList.remove("show");
   }
 
-  if (mat.yields) {
+if (mat.yields) {
     const totalProduced = qtyNeeded * mat.yields;
     document.getElementById("producesAmount").textContent = totalProduced.toLocaleString("en-US") + "x " + mat.name;
     producesRow.classList.add("show");
