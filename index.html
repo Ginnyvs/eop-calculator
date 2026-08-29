@@ -510,6 +510,66 @@ input:focus, select:focus {
   color: var(--gold-dim);
   font-style: italic;
   }
+
+select.native-select-hidden { display: none; }
+.custom-select-wrap { position: relative; }
+.custom-select-trigger {
+  position: relative;
+  width: 100%;
+  padding: 10px 32px 10px 12px;
+  border-radius: 3px;
+  border: 1px solid var(--line);
+  background: var(--void);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.custom-select-trigger::after {
+  content: "▾";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gold);
+  font-size: 12px;
+  transition: transform .15s ease;
+}
+.custom-select-trigger.open::after { transform: translateY(-50%) rotate(180deg); }
+.custom-select-trigger:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(201, 151, 63, 0.2);
+}
+.custom-select-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  max-height: 220px;
+  overflow-y: auto;
+  background: rgba(27, 20, 12, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--line-bright);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+}
+.custom-select-panel.open { display: block; animation: riseIn .18s ease both; }
+.custom-select-option {
+  padding: 10px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.custom-select-option:last-child { border-bottom: none; }
+.custom-select-option:active { background: var(--gold); color: var(--void); }
+.custom-select-option.selected { color: var(--gold-bright); }
   
 </style>
 </head>
@@ -1027,6 +1087,90 @@ function goHome() {
   document.getElementById("calculator").classList.remove("active");
   document.getElementById("home").classList.add("active");
 }
+</script>
+  <script>
+(function () {
+  function buildCustomSelect(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select || select.dataset.customized) return;
+    select.dataset.customized = "true";
+
+    const wrap = document.createElement("div");
+    wrap.className = "custom-select-wrap";
+    select.parentNode.insertBefore(wrap, select);
+    wrap.appendChild(select);
+    select.classList.add("native-select-hidden");
+
+    const trigger = document.createElement("div");
+    trigger.className = "custom-select-trigger";
+    trigger.tabIndex = 0;
+    wrap.appendChild(trigger);
+
+    const panel = document.createElement("div");
+    panel.className = "custom-select-panel";
+    wrap.appendChild(panel);
+
+    function closePanel() {
+      panel.classList.remove("open");
+      trigger.classList.remove("open");
+    }
+
+    function openPanel() {
+      document.querySelectorAll(".custom-select-panel.open").forEach((p) => {
+        if (p !== panel) p.classList.remove("open");
+      });
+      document.querySelectorAll(".custom-select-trigger.open").forEach((t) => {
+        if (t !== trigger) t.classList.remove("open");
+      });
+      panel.classList.add("open");
+      trigger.classList.add("open");
+    }
+
+    function togglePanel() {
+      if (panel.classList.contains("open")) {
+        closePanel();
+      } else {
+        openPanel();
+      }
+    }
+
+    function sync() {
+      panel.innerHTML = "";
+      Array.from(select.options).forEach((opt) => {
+        const item = document.createElement("div");
+        item.className = "custom-select-option" + (opt.value === select.value ? " selected" : "");
+        item.textContent = opt.textContent;
+        item.addEventListener("click", () => {
+          select.value = opt.value;
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+          sync();
+          closePanel();
+        });
+        panel.appendChild(item);
+      });
+      const selectedOption = select.options[select.selectedIndex];
+      trigger.textContent = selectedOption ? selectedOption.textContent : "";
+    }
+
+    trigger.addEventListener("click", togglePanel);
+    trigger.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        togglePanel();
+      }
+    });
+    document.addEventListener("click", (e) => {
+      if (!wrap.contains(e.target)) closePanel();
+    });
+
+    new MutationObserver(sync).observe(select, { childList: true });
+
+    sync();
+  }
+
+  buildCustomSelect("material");
+  buildCustomSelect("forgeCraft");
+})();
 </script>
 </body>
 </html>
