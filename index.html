@@ -357,7 +357,7 @@ input:focus, select:focus {
   100% { color: #e05a5a; }
 }
 .bonus-button.totem-button {
-  border-color: var(--jade);
+  border-color: var(--gold);
   color: #f4f1e8;
   animation: whiteTextPulse 3s ease-in-out infinite;
 }
@@ -366,10 +366,10 @@ input:focus, select:focus {
   50%      { text-shadow: 0 0 10px rgba(255, 255, 255, 0.85); }
 }
 .bonus-button.totem-button.active-boost {
-  background: var(--jade);
-  border-color: var(--jade);
+  background: var(--gold);
+  border-color: var(--gold);
   color: var(--void);
-  box-shadow: 0 0 12px rgba(63, 157, 114, 0.45);
+  box-shadow: 0 0 12px rgba(201, 151, 63, 0.45);
 }
 
 .materials-section { display: none; margin-top: 4px; }
@@ -551,6 +551,9 @@ select.native-select-hidden { display: none; }
   z-index: 50;
   max-height: 220px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;     
+       overscroll-behavior: contain;         
+       padding: 4px 0;
   background: rgba(27, 20, 12, 0.96);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -1124,6 +1127,20 @@ function goHome() {
       });
       panel.classList.add("open");
       trigger.classList.add("open");
+
+      function openPanel() {
+  document.querySelectorAll(".custom-select-panel.open").forEach((p) => {
+    if (p !== panel) p.classList.remove("open");
+  });
+  document.querySelectorAll(".custom-select-trigger.open").forEach((t) => {
+    if (t !== trigger) t.classList.remove("open");
+  });
+  panel.classList.add("open");
+  trigger.classList.add("open");
+  setTimeout(() => {
+    panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, 50);
+}   ← esse é o } que fecha a função openPanel inteira
     }
 
     function togglePanel() {
