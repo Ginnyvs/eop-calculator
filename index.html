@@ -730,7 +730,7 @@ requires: [{ name: "Cypress Log", amount: 1}]
 {name: "Earth Totem", minLevel: 40, xp: 575, yields: 3,
  requires: [{ name: "Pine Log", amount: 1}]
 },
-{name: "Light Totem", minLevel: 50, xp: 1100, yields: 3,
+{name: "Light Totem", minLevel: 50, xp: 1100, yields: 4,
 requires: [{name: "Fir Log", amount: 1}]}
   ],
 
@@ -740,7 +740,8 @@ requires: [{name: "Fir Log", amount: 1}]}
     { name: "Iron Ore", minLevel: 20, xp: 120 },
     { name: "Silver Ore", minLevel: 30, xp: 300 },
     { name: "Gold Ore", minLevel: 40, xp: 550 },
-    { name: "Titanium Ore", minLevel: 50, xp: 750 }
+    { name: "Titanium Ore", minLevel: 50, xp: 750 },
+  { name: "Amethrium Ore", minLevel: 60, xp: 1200},
   ],
 
   Forge: {
@@ -755,6 +756,9 @@ requires: [{name: "Fir Log", amount: 1}]}
         requires: [{ name: "Gold Ore", amount: 10 }] },
       { name: "Titanium Bar", minLevel: 45, xp: 950,
         requires: [{ name: "Titanium Ore", amount: 8 }] },
+  { name: "Amethrium Bar", minLevel: 60, xp: 1500,
+   requires: [{ name:, "Amethrium Ore", amount: 8}, { name: "Titanium Ore", amount: 1}]},
+              
     ],
     equipment: [
  { name: "Bronze Ring", minLevel: 4, xp: 240,
@@ -825,7 +829,8 @@ requires: [{ name: "Titanium Bar", amount: 18}]},
   { name: "Torch Goblin", xp: 1800 },
   { name: "Spear Goblin", xp: 3000 },
   { name: "Spear Goblin Rider", xp: 3900 },
-  { name: "Lizard", xp: 4500 }
+  { name: "Lizard", xp: 4500 },
+  { name: "Skeleton", xp: 6500},
 ]
 };
 const forgeLookup = {};
